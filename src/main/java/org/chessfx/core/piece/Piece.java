@@ -5,23 +5,15 @@
  */
 package org.chessfx.core.piece;
 
-import java.util.List;
-import org.chessfx.core.model.Board;
-import org.chessfx.core.model.Square;
-
 /**
  *
  * @author rafael
  */
-public abstract class Piece {
+public class Piece {
     
     private boolean active;
-    private Square position;
-    private Board board;
-    
-    public abstract void move(Square position);
-    
-    public abstract List<Square> getPosiblePositions();
+    private TypePiece type;
+    private Team team;
     
     public boolean isActive() {
         return active;
@@ -31,19 +23,20 @@ public abstract class Piece {
         this.active = active;
     }
 
-    public Square getPosition() {
-        return position;
+    public TypePiece getType() {
+        return type;
     }
 
-    public void setPosition(Square position) {
-        this.position = position;
+    public void setType(TypePiece type) {
+        this.type = type;
     }
 
-    public void setBoard(Board board) {
-        this.board = board;
+    public Team getTeam() {
+        return team;
     }
-    
-    protected Board getBoard(){
-        return board;
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
+        
 }

@@ -5,15 +5,19 @@
  */
 package org.chessfx.core.model;
 
+import org.chessfx.core.piece.Piece;
+
 /**
  *
  * @author rafael
  */
-public class Square {
+public final class Square {
     
     private int rank;
     private char file;
     private boolean ocuppied;
+    private boolean darkColor;
+    private Piece piece;
 
     public Square(){
         
@@ -25,10 +29,19 @@ public class Square {
         setOcuppied(false);
     }
     
-    public Square (int rank, char file, boolean ocuppied){
+    public Square (int rank, char file, boolean ocuppied, boolean darkColor){
         setRank(rank);
         setFile(file);
         setOcuppied(ocuppied);
+        setDarkColor(darkColor);
+    }
+    
+    public Square (int rank, char file, boolean ocuppied, boolean darkColor, Piece piece){
+        setRank(rank);
+        setFile(file);
+        setOcuppied(ocuppied);
+        setPiece(piece);
+        setDarkColor(darkColor);
     }
     
     public int getRank() {
@@ -53,6 +66,22 @@ public class Square {
 
     public void setOcuppied(boolean ocuppied) {
         this.ocuppied = ocuppied;
+    }
+
+    public boolean isDarkColor() {
+        return darkColor;
+    }
+
+    public void setDarkColor(boolean darkColor) {
+        this.darkColor = darkColor;
+    }
+    
+    public Piece getPiece() {
+        return piece;
+    }
+
+    public void setPiece(Piece piece) {
+        this.piece = piece;
     }
     
     @Override
