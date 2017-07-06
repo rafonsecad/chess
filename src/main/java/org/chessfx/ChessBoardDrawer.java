@@ -5,13 +5,18 @@
  */
 package org.chessfx;
 
+import java.awt.image.BufferedImage;
 import java.util.List;
+import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.service.BoardService;
+import org.chessfx.core.service.GraphicsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,20 +28,37 @@ import org.springframework.stereotype.Component;
 public class ChessBoardDrawer {
     
     @Autowired
-    private BoardService service;
+    private BoardService boardService;
+    
+    @Autowired
+    private GraphicsService graphsService;
     
     private final int WIDTH = 80;
     
     public void init(Pane pane){
-        service.initBoard();
-        Board board = service.getBoard();
+        boardService.initBoard();
+        Board board = boardService.getBoard();
         List<Square> squares = board.getSquares();
-        squares.stream().forEach(s -> { 
-            pane.getChildren().add(getSquareDrawed(s));
+        squares.stream().forEach(square -> {
+            drawSquare(square, pane);
         });
     }
     
-    private Rectangle getSquareDrawed(Square square){
+    private void drawSquare(Square square, Pane pane){
+        pane.getChildren().add(getEmptySquareDrawed(square));
+        if (!square.isOcuppied()){
+            return;
+        }
+        BufferedImage im = graphsService.getImage(square.getPiece());
+        Image i = SwingFXUtils.toFXImage(im, null);
+        final ImageView selectedImage = new ImageView();
+        selectedImage.setImage(i);
+        selectedImage.setX(getFileCoordinate(square.getFile()));
+        selectedImage.setY(getRankCoordinate(square.getRank()));
+        pane.getChildren().add(selectedImage);
+    }
+    
+    private Rectangle getEmptySquareDrawed(Square square){
         Rectangle rectangle = new Rectangle();
         rectangle.setX(getFileCoordinate(square.getFile()));
         rectangle.setY(getRankCoordinate(square.getRank()));

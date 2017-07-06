@@ -5,6 +5,8 @@
  */
 package org.chessfx.core.piece;
 
+import java.util.Objects;
+
 /**
  *
  * @author rafael
@@ -14,6 +16,21 @@ public class Piece {
     private boolean active;
     private TypePiece type;
     private Team team;
+    
+    public Piece(){
+        
+    }
+    
+    public Piece (Team team, TypePiece type){
+        this.setTeam(team);
+        this.setType(type);
+    }
+    
+    public Piece (Team team, TypePiece type, boolean active){
+        this.setTeam(team);
+        this.setType(type);
+        this.setActive(active);
+    }
     
     public boolean isActive() {
         return active;
@@ -37,6 +54,35 @@ public class Piece {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.type);
+        hash = 97 * hash + Objects.hashCode(this.team);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Piece other = (Piece) obj;
+        if (this.type != other.type) {
+            return false;
+        }
+        if (this.team != other.team) {
+            return false;
+        }
+        return true;
     }
         
 }

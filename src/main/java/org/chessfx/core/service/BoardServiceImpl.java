@@ -58,21 +58,20 @@ public class BoardServiceImpl implements BoardService {
     private Square initPieces(int rank, char file) {
         boolean darkColor = isDarkSquare(rank, file);
 
-        if (rank == 2) {
-            Piece whitePawn = new Piece();
-            whitePawn.setTeam(Team.WHITE);
-            whitePawn.setType(TypePiece.PAWN);
-            whitePawn.setActive(true);
-            return new Square(rank, file, true, darkColor, whitePawn);
+        if (rank != 1 && rank != 2 && rank != 7 && rank != 8){
+            return new Square(rank, file, false, darkColor);
         }
-        if (rank == 7) {
-            Piece blackPawn = new Piece();
-            blackPawn.setTeam(Team.BLACK);
-            blackPawn.setType(TypePiece.PAWN);
-            blackPawn.setActive(true);
-            return new Square(rank, file, true, darkColor, blackPawn);
+        
+        Team team = getTeamByRank (rank);
+        TypePiece type = TypePiece.PAWN;
+        
+        if (rank == 2 || rank == 7){
+            Piece pawn = new Piece(team, type, true);
+            return new Square(rank, file, true, darkColor, pawn);
         }
-        return new Square(rank, file, false, darkColor);
+        type = getTypePieceByFile(file);
+        Piece piece = new Piece(team, type, true);
+        return new Square(rank, file, true, darkColor, piece);
     }
 
     private boolean isDarkSquare(int rank, char file) {
@@ -82,6 +81,44 @@ public class BoardServiceImpl implements BoardService {
         return file % 2 == 0;
     }
 
+    private Team getTeamByRank (int rank){
+        if (rank == 1 || rank == 2){
+            return Team.WHITE;
+        }
+        return Team.BLACK;
+    }
+    
+    private TypePiece getTypePieceByFile(char file){
+        TypePiece type = TypePiece.PAWN;
+        switch (file){
+            case 'a': 
+                type = TypePiece.ROOK; 
+                break;
+            case 'b': 
+                type = TypePiece.KNIGHT; 
+                break;
+            case 'c': 
+                type = TypePiece.BISHOP; 
+                break;
+            case 'd': 
+                type = TypePiece.QUEEN; 
+                break;
+            case 'e': 
+                type = TypePiece.KING; 
+                break;
+            case 'f': 
+                type = TypePiece.BISHOP; 
+                break;
+            case 'g': 
+                type = TypePiece.KNIGHT; 
+                break;
+            case 'h': 
+                type = TypePiece.ROOK; 
+                break;
+        }
+        return type;
+    }
+    
     private Square getSquaresWithPiecedMoved(Square from, Square to, Square s) {
         if (from.equals(s)) {
             return new Square(from.getRank(), from.getFile(), from.isDarkColor(), false);
