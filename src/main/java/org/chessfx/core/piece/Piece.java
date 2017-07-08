@@ -13,6 +13,7 @@ import java.util.Objects;
  */
 public class Piece {
     
+    private boolean firstMovement;
     private boolean active;
     private TypePiece type;
     private Team team;
@@ -30,6 +31,14 @@ public class Piece {
         this.setTeam(team);
         this.setType(type);
         this.setActive(active);
+    }
+
+    public boolean isFirstMovement() {
+        return firstMovement;
+    }
+
+    public void setFirstMovement(boolean firstMovement) {
+        this.firstMovement = firstMovement;
     }
     
     public boolean isActive() {

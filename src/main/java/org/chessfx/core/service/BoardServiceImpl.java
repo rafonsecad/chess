@@ -15,6 +15,7 @@ import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
 import org.chessfx.core.piece.TypePiece;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -25,6 +26,9 @@ import org.springframework.stereotype.Component;
 public class BoardServiceImpl implements BoardService {
 
     private Board board;
+    
+    @Autowired
+    private MovementResolver resolver;
 
     @Override
     public void initBoard() {
@@ -56,7 +60,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List<Square> getAllowedMovements (Square square){
-        return new ArrayList<>();
+        return resolver.getAllowedMovements(square);
     }
     
     private Square initPieces(int rank, char file) {
