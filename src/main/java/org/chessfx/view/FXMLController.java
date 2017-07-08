@@ -1,4 +1,4 @@
-package org.chessfx;
+package org.chessfx.view;
 
 import java.net.URL;
 import java.util.ResourceBundle;
