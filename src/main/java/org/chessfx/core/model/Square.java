@@ -44,6 +44,14 @@ public final class Square {
         setDarkColor(darkColor);
     }
     
+    public static Square getSquare(Square square){
+        Square s = new Square (square.getRank(), square.getFile(), square.isOcuppied(), square.isDarkColor());
+        Piece piece = square.getPiece();
+        Piece p = new Piece(piece.getTeam(), piece.getType(), piece.isActive());
+        s.setPiece(p);
+        return s;
+    }
+    
     public int getRank() {
         return rank;
     }

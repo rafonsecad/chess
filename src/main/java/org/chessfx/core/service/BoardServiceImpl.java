@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
@@ -55,6 +54,11 @@ public class BoardServiceImpl implements BoardService {
         return board;
     }
 
+    @Override
+    public List<Square> getAllowedMovements (Square square){
+        return new ArrayList<>();
+    }
+    
     private Square initPieces(int rank, char file) {
         boolean darkColor = isDarkSquare(rank, file);
 

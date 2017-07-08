@@ -17,6 +17,7 @@ import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.service.BoardService;
 import org.chessfx.core.service.GraphicsService;
+import org.chessfx.view.controller.PieceController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,7 +46,7 @@ public class ChessBoardDrawer {
     }
     
     private void drawSquare(Square square, Pane pane){
-        pane.getChildren().add(getEmptySquareDrawed(square));
+        pane.getChildren().add(drawEmptySquare(square));
         if (!square.isOcuppied()){
             return;
         }
@@ -55,11 +56,12 @@ public class ChessBoardDrawer {
         selectedImage.setImage(i);
         selectedImage.setX(getFileCoordinate(square.getFile()));
         selectedImage.setY(getRankCoordinate(square.getRank()));
+        selectedImage.setOnMouseReleased(new PieceController(square, selectedImage));
         pane.getChildren().add(selectedImage);
     }
     
-    private Rectangle getEmptySquareDrawed(Square square){
-        Rectangle rectangle = new Rectangle();
+    private Rectangle drawEmptySquare(Square square){
+        Rectangle rectangle = new Rectangle ();
         rectangle.setX(getFileCoordinate(square.getFile()));
         rectangle.setY(getRankCoordinate(square.getRank()));
         rectangle.setWidth(WIDTH);
