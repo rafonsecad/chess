@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BoardServiceImpl implements BoardService {
 
-    private Board board;
+    private static Board board;
     
     @Autowired
     private MovementResolver resolver;
@@ -60,6 +60,7 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List<Square> getAllowedMovements (Square square){
+        resolver.setBoard(board);
         return resolver.getAllowedMovements(square);
     }
     
@@ -74,11 +75,11 @@ public class BoardServiceImpl implements BoardService {
         TypePiece type = TypePiece.PAWN;
         
         if (rank == 2 || rank == 7){
-            Piece pawn = new Piece(team, type, true);
+            Piece pawn = new Piece(team, type, true, true);
             return new Square(rank, file, true, darkColor, pawn);
         }
         type = getTypePieceByFile(file);
-        Piece piece = new Piece(team, type, true);
+        Piece piece = new Piece(team, type, true, true);
         return new Square(rank, file, true, darkColor, piece);
     }
 

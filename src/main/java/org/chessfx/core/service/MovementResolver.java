@@ -6,6 +6,7 @@
 package org.chessfx.core.service;
 
 import java.util.List;
+import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
 
 /**
@@ -14,4 +15,6 @@ import org.chessfx.core.model.Square;
  */
 public interface MovementResolver {
     List<Square> getAllowedMovements(Square square);
+    
+    void setBoard(Board board);
 }

@@ -40,6 +40,7 @@ public class MovementResolverImpl implements MovementResolver{
         return result;
     }
     
+    @Override
     public void setBoard (Board board){
         this.board = board;
     }

@@ -12,13 +12,17 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import org.chessfx.core.configuration.AppConfig;
 import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.service.BoardService;
 import org.chessfx.core.service.GraphicsService;
 import org.chessfx.view.controller.PieceController;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,14 +38,38 @@ public class ChessBoardDrawer {
     @Autowired
     private GraphicsService graphsService;
     
+    private AbstractApplicationContext context;
     private final int WIDTH = 80;
+    private Pane pane;
     
     public void init(Pane pane){
+        context = new AnnotationConfigApplicationContext(AppConfig.class);
+        this.pane = pane;
         boardService.initBoard();
         Board board = boardService.getBoard();
         List<Square> squares = board.getSquares();
         squares.stream().forEach(square -> {
             drawSquare(square, pane);
+        });
+    }
+    
+    public void draw(){
+        pane.getChildren().clear();
+        Board board = boardService.getBoard();
+        List<Square> squares = board.getSquares();
+        squares.stream().forEach(square -> {
+            drawSquare(square, pane);
+        });
+    }
+    
+    public void showAllowedMoves(List<Square> movements){
+        movements.stream().forEach(s -> {
+            Circle circle = new Circle();
+            circle.setCenterX(getFileCoordinate(s.getFile()) + (WIDTH*0.5));
+            circle.setCenterY(getRankCoordinate(s.getRank()) + (WIDTH*0.5));
+            circle.setRadius(WIDTH*0.25);
+            circle.setFill(Color.LIGHTBLUE);
+            pane.getChildren().add(circle);
         });
     }
     
@@ -56,7 +84,12 @@ public class ChessBoardDrawer {
         selectedImage.setImage(i);
         selectedImage.setX(getFileCoordinate(square.getFile()));
         selectedImage.setY(getRankCoordinate(square.getRank()));
-        selectedImage.setOnMouseReleased(new PieceController(square, selectedImage));
+//        AbstractApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        PieceController controller = (PieceController) context.getBean("PieceController");
+        controller.setSquare(square);
+        controller.setDrawer(this);
+        controller.setImage(selectedImage);
+        selectedImage.setOnMouseReleased(controller);
         pane.getChildren().add(selectedImage);
     }
     

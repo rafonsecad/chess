@@ -32,6 +32,13 @@ public class Piece {
         this.setType(type);
         this.setActive(active);
     }
+    
+    public Piece (Team team, TypePiece type, boolean active, boolean firstMovement){
+        this.setTeam(team);
+        this.setType(type);
+        this.setActive(active);
+        this.setFirstMovement(firstMovement);
+    }
 
     public boolean isFirstMovement() {
         return firstMovement;
