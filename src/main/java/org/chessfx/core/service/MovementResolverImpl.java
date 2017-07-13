@@ -15,6 +15,7 @@ import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
+import org.chessfx.core.piece.TypePiece;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,26 +29,109 @@ public class MovementResolverImpl implements MovementResolver {
 
     @Override
     public List<Square> getAllowedMovements(Square selected) {
+        List<Square> movements;
+        TypePiece type = selected.getPiece().getType();
+        switch(type){
+            case PAWN:
+                movements = getPawnMovements(selected);
+                break;
+            case KNIGHT:
+                movements = getKnightMovements(selected);
+                break;
+            case ROOK:
+                movements = getRookMovements(selected);
+                break;
+            default:
+                movements = getPawnMovements(selected);
+                break;
+        }
+        return movements;
+    }
+
+    @Override
+    public void setBoard(Board board) {
+        this.board = board;
+    }
+    
+    private List<Square> getRookMovements (Square selected){
         List<Square> movements = this.board.getSquares().stream()
-                                .filter(s -> isPawnMovement(s, selected))
+                                 .filter(square -> isRookMovement(square, selected))
+                                 .collect(Collectors.toList());
+        return movements;
+    }
+    
+    private boolean isRookMovement (Square square, Square selected){
+        if (square.getRank() == selected.getRank() && square.getFile() == selected.getFile()){
+            return false;
+        }
+        if(square.getRank() == selected.getRank()){
+            return true;
+        }
+        if(square.getFile() == selected.getFile()){
+            return true;
+        }
+        return false;
+    }
+    
+    private List<Square> getKnightMovements (Square selected){
+        List<Square> movements = this.board.getSquares().stream()
+                                 .filter(square -> isKnightMovement(square, selected))
+                                 .collect(Collectors.toList());
+        return movements;
+    }
+    
+    private boolean isKnightMovement(Square square, Square selected){
+        
+        boolean filePlusTwo = square.getFile() == selected.getFile() + 2;
+        boolean filePlusMinusTwo = square.getFile() == selected.getFile() - 2 ;
+        
+        boolean filePlusOne =  square.getFile() == selected.getFile() + 1;
+        boolean filePlusMinusOne = square.getFile() == selected.getFile() - 1;
+        
+        boolean rankPlusTwo = square.getRank() == selected.getRank() + 2;
+        boolean rankPlusMinusTwo = square.getRank() == selected.getRank() - 2;
+        
+        boolean rankPlusOne = square.getRank() == selected.getRank() + 1;
+        boolean rankPlusMinusOne = square.getRank() == selected.getRank() - 1;
+        
+        if (filePlusMinusOne || filePlusOne ){
+            if(rankPlusTwo || rankPlusMinusTwo){
+                return isEnemySquare(square, selected);
+            }
+        }
+        if (filePlusMinusTwo || filePlusTwo ){
+            if(rankPlusOne || rankPlusMinusOne){
+                return isEnemySquare(square, selected);
+            }
+        }
+        return false;
+    }
+    
+    private boolean isEnemySquare(Square square, Square selected){
+        if (!square.isOcuppied()){
+            return true;
+        }
+        Team teamSelected = selected.getPiece().getTeam();
+        Team teamSquare = square.getPiece().getTeam();
+        return teamSelected != teamSquare;
+    }
+    
+    private List<Square> getPawnMovements (Square selected){
+        List<Square> movements = this.board.getSquares().stream()
+                                .filter(square -> isPawnMovement(square, selected))
                                 .sorted(Comparator.comparing(Square::getRank))
                                 .collect(Collectors.toList());
         
         List<Square> movementsWithObstacles = getPawnMovementsWithObstacles(movements, selected);
         
         List<Square> AttackingSquares = this.board.getSquares().stream()
-                                        .filter(s -> canPawnAttack(s, selected))
+                                        .filter(square -> canPawnAttack(square, selected))
                                         .collect(Collectors.toList());
         
         List<Square> totalAllowedSquares = Stream.concat(movementsWithObstacles.stream(), 
                                            AttackingSquares.stream())
                                           .collect(Collectors.toList());
         return totalAllowedSquares;
-    }
-
-    @Override
-    public void setBoard(Board board) {
-        this.board = board;
     }
     
     private boolean isPawnMovement(Square square, Square selected){
@@ -67,7 +151,7 @@ public class MovementResolverImpl implements MovementResolver {
     }
     
     private List<Square> getPawnMovementsWithObstacles (List<Square> movements, Square selected){
-        List<Square> movementsSorted = movements.stream().map(s->s).collect(Collectors.toList());
+        List<Square> movementsSorted = movements.stream().map(square -> square).collect(Collectors.toList());
         if (selected.getPiece().getTeam() == Team.BLACK){
             Collections.reverse(movementsSorted);
         }
