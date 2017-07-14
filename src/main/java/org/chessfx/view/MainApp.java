@@ -19,7 +19,7 @@ public class MainApp extends Application {
             ChessBoardDrawer boardDrawer = (ChessBoardDrawer) context.getBean("ChessBoardDrawer");
             Pane pane = new Pane();
             boardDrawer.init(pane);
-            stage.setTitle("Drawing Operations Test");
+            stage.setTitle("Chess Fx");
             Group root = new Group();
             root.getChildren().add(pane);
             stage.setScene(new Scene(root));

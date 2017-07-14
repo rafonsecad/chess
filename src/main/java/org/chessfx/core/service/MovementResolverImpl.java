@@ -6,6 +6,7 @@
 package org.chessfx.core.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -57,7 +58,35 @@ public class MovementResolverImpl implements MovementResolver {
         List<Square> movements = this.board.getSquares().stream()
                                  .filter(square -> isRookMovement(square, selected))
                                  .collect(Collectors.toList());
-        return movements;
+        List<Square> northernMovements = movements.stream()
+                                        .filter(square -> square.getRank() > selected.getRank())
+                                        .sorted(Comparator.comparing(Square::getRank))
+                                        .collect(Collectors.toList());
+        List<Square> easternMovements = movements.stream()
+                                        .filter(square -> square.getFile() > selected.getFile())
+                                        .sorted(Comparator.comparing(Square::getFile))
+                                        .collect(Collectors.toList());
+        List<Square> southernMovements = movements.stream()
+                                        .filter(square -> square.getRank() < selected.getRank())
+                                        .sorted(Comparator.comparing(Square::getRank).reversed())
+                                        .collect(Collectors.toList());
+        List<Square> westernMovements = movements.stream()
+                                        .filter(square -> square.getFile() < selected.getFile())
+                                        .sorted(Comparator.comparing(Square::getFile).reversed())
+                                        .collect(Collectors.toList());
+        List<Square> northenMovementsWithObstacles = getMovementsWithObstacles(northernMovements, selected);
+        List<Square> easternMovementsWithObstacles = getMovementsWithObstacles(easternMovements, selected);
+        List<Square> southernMovementsWithObstacles = getMovementsWithObstacles(southernMovements, selected);
+        List<Square> westernMovementsWithObstacles = getMovementsWithObstacles(westernMovements, selected);
+        
+        List<Square> movementsWithObstacles = Stream.concat(
+                                              Stream.concat(
+                                              Stream.concat(northenMovementsWithObstacles.stream(), 
+                                                            easternMovementsWithObstacles.stream()),
+                                                            southernMovementsWithObstacles.stream()),
+                                                            westernMovementsWithObstacles.stream())
+                                               .collect(Collectors.toList());
+        return movementsWithObstacles;
     }
     
     private boolean isRookMovement (Square square, Square selected){
@@ -71,6 +100,20 @@ public class MovementResolverImpl implements MovementResolver {
             return true;
         }
         return false;
+    }
+    
+    private List<Square> getMovementsWithObstacles(List<Square> movements, Square selected){
+        List<Square> movementsWithObstacles = new ArrayList<>();
+        for(Square square: movements){
+            if(square.isOcuppied()){
+                if (square.getPiece().getTeam() != selected.getPiece().getTeam()){
+                    movementsWithObstacles.add(square);
+                }
+                break;
+            }
+            movementsWithObstacles.add(square);
+        }
+        return movementsWithObstacles;
     }
     
     private List<Square> getKnightMovements (Square selected){
