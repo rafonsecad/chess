@@ -6,7 +6,6 @@
 package org.chessfx.core.service;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -42,6 +41,12 @@ public class MovementResolverImpl implements MovementResolver {
             case ROOK:
                 movements = getRookMovements(selected);
                 break;
+            case BISHOP:
+                movements = getBishopMovements(selected);
+                break;
+            case QUEEN:
+                movements = getQueenMovements(selected);
+                break;
             default:
                 movements = getPawnMovements(selected);
                 break;
@@ -52,6 +57,56 @@ public class MovementResolverImpl implements MovementResolver {
     @Override
     public void setBoard(Board board) {
         this.board = board;
+    }
+    
+    private List<Square> getQueenMovements(Square selected){
+        List<Square> rookMovements = getRookMovements(selected);
+        List<Square> bishopMovements = getBishopMovements(selected);
+        return Stream.concat(rookMovements.stream(), bishopMovements.stream()).collect(Collectors.toList());
+    }
+    
+    private List<Square> getBishopMovements (Square selected){
+        List<Square> movements = this.board.getSquares().stream()
+                                 .filter(square -> isBishopMovement(square, selected))
+                                 .collect(Collectors.toList());
+        List<Square> NEMovements = movements.stream()
+                                   .filter(square -> square.getRank() > selected.getRank() && square.getFile() > selected.getFile())
+                                   .sorted(Comparator.comparing(Square::getRank))
+                                   .collect(Collectors.toList());
+        List<Square> SEMovements = movements.stream()
+                                   .filter(square -> square.getRank() < selected.getRank() && square.getFile() > selected.getFile())
+                                   .sorted(Comparator.comparing(Square::getFile))
+                                   .collect(Collectors.toList());
+        List<Square> SWMovements = movements.stream()
+                                   .filter(square -> square.getRank() < selected.getRank() && square.getFile() < selected.getFile())
+                                   .sorted(Comparator.comparing(Square::getFile).reversed())
+                                   .collect(Collectors.toList());
+        List<Square> NWMovements = movements.stream()
+                                   .filter(square -> square.getRank() > selected.getRank() && square.getFile() < selected.getFile())
+                                   .sorted(Comparator.comparing(Square::getFile).reversed())
+                                   .collect(Collectors.toList());
+        List<Square> NEMovementsWithObstacles = getMovementsWithObstacles(NEMovements, selected);
+        List<Square> SEMovementsWithObstacles = getMovementsWithObstacles(SEMovements, selected);
+        List<Square> SWMovementsWithObstacles = getMovementsWithObstacles(SWMovements, selected);
+        List<Square> NWMovementsWithObstacles = getMovementsWithObstacles(NWMovements, selected);
+        List<Square> movementsWithObstacles = Stream.concat(
+                                              Stream.concat(
+                                              Stream.concat(NEMovementsWithObstacles.stream(), 
+                                                            SEMovementsWithObstacles.stream()),
+                                                            SWMovementsWithObstacles.stream()),
+                                                            NWMovementsWithObstacles.stream())
+                                               .collect(Collectors.toList());
+        return movementsWithObstacles;
+    }
+    
+    private boolean isBishopMovement(Square square, Square selected){
+        if (square.getRank() == selected.getRank() && square.getFile() == selected.getFile()){
+            return false;
+        }
+        int rankDistance = Math.abs(square.getRank() - selected.getRank());
+        int fileDistance = Math.abs(square.getFile() - selected.getFile());
+        
+        return rankDistance == fileDistance;
     }
     
     private List<Square> getRookMovements (Square selected){

@@ -536,4 +536,130 @@ public class MovementResolverImplTest {
         List<Square> result = instance.getAllowedMovements(square);
         assertEquals(expResult, result);
     }
+    
+    @Test
+    public void testGetAllowedMovements_BishopD5_WithObstacles(){
+        Square square = this.board.getSquares().stream().filter(s -> s.getFile() == 'd' && s.getRank() == 5).findFirst().get();
+        Piece piece = new Piece(Team.WHITE, TypePiece.BISHOP, true);
+        piece.setFirstMovement(false);
+        square.setPiece(piece);
+        Piece victim = new Piece(Team.BLACK, TypePiece.BISHOP, true);
+        Piece obstacle = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        Piece obstacleII = new Piece(Team.WHITE, TypePiece.KING, true);
+        Piece obstacleIII = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        List<Square> squares = this.board.getSquares().stream().map(s -> {
+                                    if(s.getFile() == 'f' && s.getRank() == 7){
+                                        s.setOcuppied(true);
+                                        s.setPiece(victim);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'e' && s.getRank() == 4){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacle);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'b' && s.getRank() == 3){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleII);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'b' && s.getRank() == 7){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleIII);
+                                        return s;
+                                    }
+                                    return s;
+                                }).collect(Collectors.toList());
+        this.board.setSquares(squares);
+        MovementResolverImpl instance = new MovementResolverImpl();
+        instance.setBoard(board);
+        Square s1 = this.board.getSquares().stream().filter(s -> s.getFile() == 'e' && s.getRank() == 6).findFirst().get();
+        Square s2 = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 7).findFirst().get();
+        
+        Square s3 = this.board.getSquares().stream().filter(s -> s.getFile() == 'c' && s.getRank() == 4).findFirst().get();
+        
+        Square s4 = this.board.getSquares().stream().filter(s -> s.getFile() == 'c' && s.getRank() == 6).findFirst().get();
+        List<Square> expResult = Stream.of(s1, s2, s3, s4).collect(Collectors.toList());
+        List<Square> result = instance.getAllowedMovements(square);
+        assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testGetAllowedMovements_QueenD4_WithObstacles(){
+        Square square = this.board.getSquares().stream().filter(s -> s.getFile() == 'd' && s.getRank() == 4).findFirst().get();
+        Piece piece = new Piece(Team.WHITE, TypePiece.QUEEN, true);
+        piece.setFirstMovement(false);
+        square.setPiece(piece);
+        Piece victim = new Piece(Team.BLACK, TypePiece.BISHOP, true);
+        Piece obstacle = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        Piece obstacleII = new Piece(Team.WHITE, TypePiece.KING, true);
+        Piece obstacleIII = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        Piece victimII = new Piece(Team.BLACK, TypePiece.BISHOP, true);
+        Piece obstacleIV = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        Piece obstacleV = new Piece(Team.WHITE, TypePiece.ROOK, true);
+        Piece obstacleVI = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        List<Square> squares = this.board.getSquares().stream().map(s -> {
+                                    if(s.getFile() == 'd' && s.getRank() == 6){
+                                        s.setOcuppied(true);
+                                        s.setPiece(victim);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'f' && s.getRank() == 4){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacle);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'd' && s.getRank() == 2){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleII);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'b' && s.getRank() == 4){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleIII);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'f' && s.getRank() == 6){
+                                        s.setOcuppied(true);
+                                        s.setPiece(victimII);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'f' && s.getRank() == 2){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleIV);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'c' && s.getRank() == 3){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleV);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'c' && s.getRank() == 5){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleVI);
+                                        return s;
+                                    }
+                                    return s;
+                                }).collect(Collectors.toList());
+        this.board.setSquares(squares);
+        MovementResolverImpl instance = new MovementResolverImpl();
+        instance.setBoard(board);
+        Square s1 = this.board.getSquares().stream().filter(s -> s.getFile() == 'd' && s.getRank() == 5).findFirst().get();
+        Square s2 = this.board.getSquares().stream().filter(s -> s.getFile() == 'd' && s.getRank() == 6).findFirst().get();
+        
+        Square s3 = this.board.getSquares().stream().filter(s -> s.getFile() == 'e' && s.getRank() == 4).findFirst().get();
+        
+        Square s4 = this.board.getSquares().stream().filter(s -> s.getFile() == 'd' && s.getRank() == 3).findFirst().get();
+        
+        Square s5 = this.board.getSquares().stream().filter(s -> s.getFile() == 'c' && s.getRank() == 4).findFirst().get();
+        
+        Square s6 = this.board.getSquares().stream().filter(s -> s.getFile() == 'e' && s.getRank() == 5).findFirst().get();
+        Square s7 = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 6).findFirst().get();
+        
+        Square s8 = this.board.getSquares().stream().filter(s -> s.getFile() == 'e' && s.getRank() == 3).findFirst().get();
+        
+        List<Square> expResult = Stream.of(s1, s2, s3, s4, s5, s6, s7, s8).collect(Collectors.toList());
+        List<Square> result = instance.getAllowedMovements(square);
+        assertEquals(expResult, result);
+    }
 }
