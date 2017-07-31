@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
+import org.chessfx.core.piece.Team;
 
 /**
  *
@@ -39,7 +40,15 @@ public class KingMovementResolver {
         if (square.getFile() != selected.getFile() + 1 && square.getFile() != selected.getFile() - 1 && square.getFile() != selected.getFile()){
             return false;
         }
+        if (!square.isOcuppied()){
+            return true;
+        }
+        Team selectedTeam = selected.getPiece().getTeam();
+        Team squareTeam = square.getPiece().getTeam();
         
+        if (selectedTeam == squareTeam){
+            return false;
+        }
         return true;
     }
 }

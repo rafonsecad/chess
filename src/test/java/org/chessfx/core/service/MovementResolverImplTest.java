@@ -683,4 +683,50 @@ public class MovementResolverImplTest {
         List<Square> result = instance.getAllowedMovements(square);
         assertEquals(expResult, result);
     }
+    
+    @Test
+    public void testGetAllowedMovements_KingF5_OccupiedBoard(){
+        Square square = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 5).findFirst().get();
+        Piece piece = new Piece(Team.WHITE, TypePiece.KING, true);
+        piece.setFirstMovement(false);
+        square.setPiece(piece);
+        Piece obstacle = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        Piece obstacleII = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        Piece obstacleIII = new Piece(Team.WHITE, TypePiece.PAWN, true);
+        Piece victim = new Piece(Team.BLACK, TypePiece.PAWN, true);
+        List<Square> squares = this.board.getSquares().stream().map(s -> {
+                                    if(s.getFile() == 'e' && s.getRank() == 6){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacle);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'g' && s.getRank() == 6){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleII);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'e' && s.getRank() == 4){
+                                        s.setOcuppied(true);
+                                        s.setPiece(obstacleIII);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'g' && s.getRank() == 4){
+                                        s.setOcuppied(true);
+                                        s.setPiece(victim);
+                                        return s;
+                                    }
+                                    return s;
+        }).collect(Collectors.toList());
+        this.board.setSquares(squares);
+        MovementResolverImpl instance = new MovementResolverImpl();
+        instance.setBoard(board);
+        Square s1 = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 6).findFirst().get();
+        Square s2 = this.board.getSquares().stream().filter(s -> s.getFile() == 'e' && s.getRank() == 5).findFirst().get();
+        Square s3 = this.board.getSquares().stream().filter(s -> s.getFile() == 'g' && s.getRank() == 5).findFirst().get();
+        Square s4 = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 4).findFirst().get();
+        Square s5 = this.board.getSquares().stream().filter(s -> s.getFile() == 'g' && s.getRank() == 4).findFirst().get();
+        List<Square> expResult = Stream.of(s1, s2, s3, s4, s5).collect(Collectors.toList());
+        List<Square> result = instance.getAllowedMovements(square);
+        assertEquals(expResult, result);
+    }
 }
