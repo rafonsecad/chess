@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.chessfx.core.configuration.AppConfig;
+import org.chessfx.view.controller.BoardController;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 
@@ -17,9 +18,12 @@ public class MainApp extends Application {
         try {
             AbstractApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
             ChessBoardDrawer boardDrawer = (ChessBoardDrawer) context.getBean("ChessBoardDrawer");
+            BoardController boardController = (BoardController) context.getBean("BoardController");
             Pane pane = new Pane();
-            boardDrawer.init(pane);
-            stage.setTitle("Chess Fx");
+            boardDrawer.setPane(pane);
+            boardController.init(boardDrawer);
+            pane.setOnMouseClicked(boardController);
+            stage.setTitle("Chess FX");
             Group root = new Group();
             root.getChildren().add(pane);
             stage.setScene(new Scene(root));

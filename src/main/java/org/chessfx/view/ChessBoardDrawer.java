@@ -8,21 +8,16 @@ package org.chessfx.view;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import javafx.embed.swing.SwingFXUtils;
+import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import org.chessfx.core.configuration.AppConfig;
-import org.chessfx.core.model.Board;
-import org.chessfx.core.model.Square;
-import org.chessfx.core.service.BoardService;
 import org.chessfx.core.service.GraphicsService;
-import org.chessfx.view.controller.PieceController;
+import org.chessfx.view.model.SquareImage;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.stereotype.Component;
 
 /**
@@ -33,49 +28,24 @@ import org.springframework.stereotype.Component;
 public class ChessBoardDrawer {
     
     @Autowired
-    private BoardService boardService;
-    
-    @Autowired
     private GraphicsService graphsService;
     
-    private AbstractApplicationContext context;
     private final int WIDTH = 80;
     private Pane pane;
     
-    public void init(Pane pane){
-        context = new AnnotationConfigApplicationContext(AppConfig.class);
-        this.pane = pane;
-        boardService.initBoard();
-        Board board = boardService.getBoard();
-        List<Square> squares = board.getSquares();
-        squares.stream().forEach(square -> {
-            drawSquare(square, pane);
-        });
-    }
-    
-    public void draw(){
+    public void draw(List<SquareImage> squares){
         pane.getChildren().clear();
-        Board board = boardService.getBoard();
-        List<Square> squares = board.getSquares();
         squares.stream().forEach(square -> {
-            drawSquare(square, pane);
+            drawSquare(square);
         });
     }
     
-    public void showAllowedMoves(List<Square> movements){
-        movements.stream().forEach(s -> {
-            Circle circle = new Circle();
-            circle.setCenterX(getFileCoordinate(s.getFile()) + (WIDTH*0.5));
-            circle.setCenterY(getRankCoordinate(s.getRank()) + (WIDTH*0.5));
-            circle.setRadius(WIDTH*0.25);
-            circle.setFill(Color.LIGHTBLUE);
-            pane.getChildren().add(circle);
-        });
-    }
-    
-    private void drawSquare(Square square, Pane pane){
+    private void drawSquare(SquareImage square){
         pane.getChildren().add(drawEmptySquare(square));
         if (!square.isOcuppied()){
+            if(square.isOption()){
+                showAllowedMove(square);
+            }
             return;
         }
         BufferedImage im = graphsService.getImage(square.getPiece());
@@ -84,16 +54,16 @@ public class ChessBoardDrawer {
         selectedImage.setImage(i);
         selectedImage.setX(getFileCoordinate(square.getFile()));
         selectedImage.setY(getRankCoordinate(square.getRank()));
-//        AbstractApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-        PieceController controller = (PieceController) context.getBean("PieceController");
-        controller.setSquare(square);
-        controller.setDrawer(this);
-        controller.setImage(selectedImage);
-        selectedImage.setOnMouseReleased(controller);
+        if (square.isSelected()){
+            setSelectedEffect(selectedImage);
+        }
+        if (square.isOption()){
+            showAllowedMove(square);
+        }
         pane.getChildren().add(selectedImage);
     }
     
-    private Rectangle drawEmptySquare(Square square){
+    private Rectangle drawEmptySquare(SquareImage square){
         Rectangle rectangle = new Rectangle ();
         rectangle.setX(getFileCoordinate(square.getFile()));
         rectangle.setY(getRankCoordinate(square.getRank()));
@@ -103,6 +73,22 @@ public class ChessBoardDrawer {
         rectangle.setFill(color);
         rectangle.setStroke(Color.BLACK);
         return rectangle;
+    }
+    
+    private void showAllowedMove(SquareImage square){
+        Circle circle = new Circle();
+        circle.setCenterX(getFileCoordinate(square.getFile()) + (WIDTH*0.5));
+        circle.setCenterY(getRankCoordinate(square.getRank()) + (WIDTH*0.5));
+        circle.setRadius(WIDTH*0.25);
+        circle.setFill(Color.LIGHTBLUE);
+        pane.getChildren().add(circle);
+    }
+    
+    private void setSelectedEffect(ImageView image){
+        ColorAdjust color = new ColorAdjust();
+        color.setBrightness(0.8);
+        color.setContrast(0.5);
+        image.setEffect(color);
     }
     
     private int getFileCoordinate (char file){
@@ -133,5 +119,9 @@ public class ChessBoardDrawer {
             case 1 : factor = 7; break;
         }
         return factor*WIDTH;
+    }
+    
+    public void setPane(Pane pane){
+        this.pane = pane;
     }
 }

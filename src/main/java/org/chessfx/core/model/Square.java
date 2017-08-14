@@ -11,7 +11,7 @@ import org.chessfx.core.piece.Piece;
  *
  * @author rafael
  */
-public final class Square {
+public class Square {
     
     private int rank;
     private char file;
