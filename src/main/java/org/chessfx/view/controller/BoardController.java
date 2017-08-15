@@ -29,25 +29,56 @@ public class BoardController implements EventHandler<MouseEvent>{
     
     private ChessBoardDrawer drawer;
     private final int WIDTH = 80;
+    private List<SquareImage> squareImagesBoard;
     
     public void init(ChessBoardDrawer drawer){
         this.drawer = drawer;
         boardService.initBoard();
         List<Square> squares = boardService.getBoard().getSquares();
-        this.drawer.draw(this.toListSquareImage(squares));
+        squareImagesBoard = toListSquareImage(squares);
+        this.drawer.draw(squareImagesBoard);
     }
     
     @Override
     public void handle(MouseEvent event) {
         Square square = getSquareByCoordinates(event.getX(), event.getY());
-        Square squareInBoard = boardService.getBoard().getSquares().stream()
-                               .filter(s-> s.getFile() == square.getFile() && s.getRank() == square.getRank())
-                               .findFirst().get();
-        if (squareInBoard.isOcuppied()){
-            List<SquareImage> squareImages = getSquarePieceSelected(squareInBoard);
-            List<SquareImage> squareImagesAllowed = setAllowedMovementsToSquares(squareInBoard, squareImages);
-            drawer.draw(squareImagesAllowed);
+        Square squareInBoard = getSquareInBoard(square);
+        Optional<SquareImage> squareSelected = squareImagesBoard.stream().filter(sI -> sI.isSelected() == true).findAny();
+        Optional<SquareImage> squareToMove = getSquareToMove(squareInBoard);
+        
+        if(squareSelected.isPresent() && squareSelected.get().equals(squareInBoard)){
+            squareImagesBoard = getBoardUnmarked();
         }
+        else if(squareToMove.isPresent()){
+            boardService.movePiece(squareSelected.get(), squareToMove.get());
+            List<Square> squares = boardService.getBoard().getSquares();
+            squareImagesBoard = toListSquareImage(squares);
+        }
+        else if (squareInBoard.isOcuppied()){
+            List<SquareImage> squareImages = getSquarePieceSelected(squareInBoard);
+            squareImagesBoard = setAllowedMovementsToSquares(squareInBoard, squareImages);
+        }
+        drawer.draw(squareImagesBoard);
+    }
+    
+    private Square getSquareInBoard(Square square){
+        return boardService.getBoard().getSquares().stream()
+               .filter(s-> s.getFile() == square.getFile() && s.getRank() == square.getRank())
+               .findFirst().get();
+    }
+    
+    private List<SquareImage> getBoardUnmarked (){
+        return  squareImagesBoard.stream()
+                .map(square -> {square.setOption(false); square.setSelected(false); return square;  })
+                .collect(Collectors.toList());
+    }
+    
+    private Optional<SquareImage> getSquareToMove(Square squareInBoard){
+        return squareImagesBoard.stream()
+               .filter(sI-> sI.getFile() == squareInBoard.getFile() && 
+                            sI.getRank() == squareInBoard.getRank() && 
+                            sI.isOption() == true)
+               .findAny();
     }
     
     private List<SquareImage> getSquarePieceSelected (Square squareInBoard){
@@ -58,11 +89,11 @@ public class BoardController implements EventHandler<MouseEvent>{
     
     private SquareImage checkSelectedSquare(Square square, Square squareInBoard){
         if(square.equals(squareInBoard)){
-             SquareImage si = this.toSquareImage(square);
+             SquareImage si = toSquareImage(square);
              si.setSelected(true);
              return si;
          }
-         return this.toSquareImage(square);
+         return toSquareImage(square);
     }
     
     private List<SquareImage> setAllowedMovementsToSquares (Square squareInBoard, List<SquareImage> squareImages){
@@ -73,7 +104,9 @@ public class BoardController implements EventHandler<MouseEvent>{
     }
     
     private SquareImage checkOptionSquare (SquareImage squareImage, List<Square> squaresAllowed){
-        Optional<Square> squareFound = squaresAllowed.stream().filter(allowed -> allowed.equals(squareImage)).findAny();
+        Optional<Square> squareFound = squaresAllowed.stream()
+                                       .filter(allowed -> allowed.equals(squareImage))
+                                       .findAny();
         if (squareFound.isPresent()){
             squareImage.setOption(true);
         }

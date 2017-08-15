@@ -130,10 +130,10 @@ public class BoardServiceImpl implements BoardService {
     
     private Square getSquaresWithPiecedMoved(Square from, Square to, Square s) {
         if (from.equals(s)) {
-            return new Square(from.getRank(), from.getFile(), from.isDarkColor(), false);
+            return new Square(from.getRank(), from.getFile(), false, from.isDarkColor());
         }
         if (to.equals(s)) {
-            return new Square(to.getRank(), to.getFile(), from.isDarkColor(), true);
+            return new Square(to.getRank(), to.getFile(), true, to.isDarkColor(), from.getPiece());
         }
         return s;
     }
