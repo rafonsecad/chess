@@ -133,7 +133,9 @@ public class BoardServiceImpl implements BoardService {
             return new Square(from.getRank(), from.getFile(), false, from.isDarkColor());
         }
         if (to.equals(s)) {
-            return new Square(to.getRank(), to.getFile(), true, to.isDarkColor(), from.getPiece());
+            Piece fromPiece = from.getPiece();
+            Piece piece = new Piece(fromPiece.getTeam(), fromPiece.getType(), true, false);
+            return new Square(to.getRank(), to.getFile(), true, to.isDarkColor(), piece);
         }
         return s;
     }
