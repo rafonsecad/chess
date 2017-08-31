@@ -22,17 +22,21 @@ import org.springframework.stereotype.Component;
  *
  * @author rafael
  */
-@Component
+@Component("BoardServiceImpl")
 public class BoardServiceImpl implements BoardService {
 
-    private static Board board;
+    private Board board;
+    private List<Board> historic;
+    private List<Piece> deadPieces;
     
     @Autowired
     private MovementResolver resolver;
 
     @Override
     public void initBoard() {
-        this.board = new Board();
+        board = new Board();
+        historic = new ArrayList<>();
+        deadPieces = new ArrayList<>();
         List<Square> squares = new ArrayList<>();
         char[] files = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
         int[] ranks = new int[]{8, 7, 6, 5, 4, 3, 2, 1};
@@ -42,7 +46,7 @@ public class BoardServiceImpl implements BoardService {
                 squares.add(initPieces(r, f));
             });
         });
-        this.board.setSquares(squares);
+        board.setSquares(squares);
     }
 
     @Override
@@ -51,6 +55,9 @@ public class BoardServiceImpl implements BoardService {
                 .map(s -> getSquaresWithPiecedMoved(from, to, s))
                 .collect(Collectors.toList());
         board.setSquares(squaresWithPiecedMoved);
+        Board copyBoard = new Board();
+        copyBoard.setSquares(squaresWithPiecedMoved.stream().map(s->s).collect(Collectors.toList()));
+        historic.add(copyBoard);
     }
 
     @Override
@@ -59,9 +66,23 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    public List<Piece> getDeadPieces(){
+        return deadPieces.stream()
+                .map(p -> p)
+                .collect(Collectors.toList());
+    }
+    
+    @Override
     public List<Square> getAllowedMovements (Square square){
-        resolver.setBoard(board);
-        return resolver.getAllowedMovements(square);
+        Team teamPlayer = square.getPiece().getTeam();
+        boolean isWhiteSelected = teamPlayer == Team.WHITE;
+        int numberOfMoves = historic.size();
+        boolean isWhiteToMove = (numberOfMoves % 2 == 0);
+        if((isWhiteSelected && isWhiteToMove) || (!isWhiteSelected && !isWhiteToMove) ){
+            resolver.setBoard(board);
+            return resolver.getAllowedMovements(square);
+        }
+        return new ArrayList<>();
     }
     
     private Square initPieces(int rank, char file) {
@@ -133,10 +154,18 @@ public class BoardServiceImpl implements BoardService {
             return new Square(from.getRank(), from.getFile(), false, from.isDarkColor());
         }
         if (to.equals(s)) {
+            if (to.isOcuppied()){
+                addDeadPiece(to.getPiece());
+            }
             Piece fromPiece = from.getPiece();
             Piece piece = new Piece(fromPiece.getTeam(), fromPiece.getType(), true, false);
             return new Square(to.getRank(), to.getFile(), true, to.isDarkColor(), piece);
         }
         return s;
+    }
+    
+    private void addDeadPiece(Piece piece){
+        Piece deadPiece = new Piece(piece.getTeam(), piece.getType(), false, false);
+        deadPieces.add(deadPiece);
     }
 }

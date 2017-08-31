@@ -5,12 +5,14 @@
  */
 package org.chessfx.view.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import org.chessfx.core.model.Square;
+import org.chessfx.core.piece.Piece;
 import org.chessfx.core.service.BoardService;
 import org.chessfx.view.ChessBoardDrawer;
 import org.chessfx.view.model.SquareImage;
@@ -36,13 +38,16 @@ public class BoardController implements EventHandler<MouseEvent>{
         boardService.initBoard();
         List<Square> squares = boardService.getBoard().getSquares();
         squareImagesBoard = toListSquareImage(squares);
-        this.drawer.draw(squareImagesBoard);
+        this.drawer.draw(squareImagesBoard, new ArrayList<>());
     }
     
     @Override
     public void handle(MouseEvent event) {
-        Square square = getSquareByCoordinates(event.getX(), event.getY());
-        Square squareInBoard = getSquareInBoard(square);
+        Optional<Square> square = getSquareByCoordinates(event.getX(), event.getY());
+        if (!square.isPresent()){
+            return;
+        }
+        Square squareInBoard = getSquareInBoard(square.get());
         Optional<SquareImage> squareSelected = squareImagesBoard.stream().filter(sI -> sI.isSelected() == true).findAny();
         Optional<SquareImage> squareToMove = getSquareToMove(squareInBoard);
         
@@ -58,7 +63,8 @@ public class BoardController implements EventHandler<MouseEvent>{
             List<SquareImage> squareImages = getSquarePieceSelected(squareInBoard);
             squareImagesBoard = setAllowedMovementsToSquares(squareInBoard, squareImages);
         }
-        drawer.draw(squareImagesBoard);
+        List<Piece> deadPieces = boardService.getDeadPieces();
+        drawer.draw(squareImagesBoard, deadPieces);
     }
     
     private Square getSquareInBoard(Square square){
@@ -113,14 +119,18 @@ public class BoardController implements EventHandler<MouseEvent>{
         return squareImage;
     }
     
-    private Square getSquareByCoordinates (double x, double y){
+    private Optional<Square> getSquareByCoordinates (double x, double y){
+        if (x < 2*WIDTH || 10*WIDTH < x){
+            return Optional.empty();
+        }
+        x = x - 2*WIDTH;
         int rank = 8 - (int)(y/WIDTH);
         int fileLength = (int)(x/WIDTH);
         char file = (char)('a' + fileLength);
         Square square = new Square();
         square.setFile(file);
         square.setRank(rank);
-        return square;
+        return Optional.of(square);
     }
     
     private SquareImage toSquareImage (Square square){

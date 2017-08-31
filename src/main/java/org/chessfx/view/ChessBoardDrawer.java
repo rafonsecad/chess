@@ -7,6 +7,7 @@ package org.chessfx.view;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
+import java.util.stream.Collectors;
 import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -15,6 +16,8 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import org.chessfx.core.piece.Piece;
+import org.chessfx.core.piece.Team;
 import org.chessfx.core.service.GraphicsService;
 import org.chessfx.view.model.SquareImage;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,19 +36,64 @@ public class ChessBoardDrawer {
     private final int WIDTH = 80;
     private Pane pane;
     
-    public void draw(List<SquareImage> squares){
+    public void draw(List<SquareImage> squares, List<Piece> deadPieces){
         pane.getChildren().clear();
+        drawDeadPiecesPanes(deadPieces);
         squares.stream().forEach(square -> {
             drawSquare(square);
         });
     }
     
+    private void drawDeadPiecesPanes(List<Piece> deadPieces){
+        drawLateralPane(0, 2*WIDTH, 8*WIDTH);
+        drawLateralPane(10*WIDTH, 2*WIDTH, 8*WIDTH);
+        
+        List<Piece> whitePieces = deadPieces.stream()
+                .filter(piece -> piece.getTeam() == Team.WHITE)
+                .collect(Collectors.toList());
+        
+        arrangeDeadPieces(whitePieces, 0);
+        
+        List<Piece> blackPieces = deadPieces.stream()
+                .filter(piece -> piece.getTeam() == Team.BLACK)
+                .collect(Collectors.toList());
+        
+        arrangeDeadPieces(blackPieces, 10);
+
+    }
+    
+    private void drawLateralPane(int x ,int width, int height){
+        Rectangle rectangle = new Rectangle();
+        Color color = Color.SADDLEBROWN;
+        rectangle.setX(x);
+        rectangle.setY(0);
+        rectangle.setWidth(width);
+        rectangle.setHeight(height);
+        rectangle.setFill(color);
+        rectangle.setStroke(Color.BLACK);
+        pane.getChildren().add(rectangle);
+    }
+    
+    private void arrangeDeadPieces(List<Piece> pieces, int column){
+        for(int index=0; index<pieces.size(); index++){
+            int X_index = index < 8 ? column : column+1;
+            int Y_index = index < 8 ? index : index-8;
+            BufferedImage im = graphsService.getImage(pieces.get(index));
+            Image i = SwingFXUtils.toFXImage(im, null);
+            final ImageView selectedImage = new ImageView();
+            selectedImage.setImage(i);
+            selectedImage.setX(X_index*WIDTH);
+            selectedImage.setY(Y_index*WIDTH);
+            pane.getChildren().add(selectedImage);
+        }
+    }
+    
     private void drawSquare(SquareImage square){
         pane.getChildren().add(drawEmptySquare(square));
+        if(square.isOption()){
+            showAllowedMove(square);
+        }
         if (!square.isOcuppied()){
-            if(square.isOption()){
-                showAllowedMove(square);
-            }
             return;
         }
         BufferedImage im = graphsService.getImage(square.getPiece());
@@ -57,10 +105,10 @@ public class ChessBoardDrawer {
         if (square.isSelected()){
             setSelectedEffect(selectedImage);
         }
-        if (square.isOption()){
+        pane.getChildren().add(selectedImage);
+        if(square.isOption()){
             showAllowedMove(square);
         }
-        pane.getChildren().add(selectedImage);
     }
     
     private Rectangle drawEmptySquare(SquareImage square){
@@ -103,7 +151,7 @@ public class ChessBoardDrawer {
             case 'g' : factor = 6; break;
             case 'h' : factor = 7; break;
         }
-        return factor*WIDTH;
+        return (factor + 2)*WIDTH;
     }
     
     private int getRankCoordinate (int rank){
