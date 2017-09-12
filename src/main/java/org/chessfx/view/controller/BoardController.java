@@ -13,6 +13,7 @@ import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
+import org.chessfx.core.piece.Team;
 import org.chessfx.core.service.BoardService;
 import org.chessfx.view.ChessBoardDrawer;
 import org.chessfx.view.model.SquareImage;
@@ -50,20 +51,21 @@ public class BoardController implements EventHandler<MouseEvent>{
         Square squareInBoard = getSquareInBoard(square.get());
         Optional<SquareImage> squareSelected = squareImagesBoard.stream().filter(sI -> sI.isSelected() == true).findAny();
         Optional<SquareImage> squareToMove = getSquareToMove(squareInBoard);
-        
+        List<SquareImage> squaresImages = new ArrayList<>();
         if(squareSelected.isPresent() && squareSelected.get().equals(squareInBoard)){
-            squareImagesBoard = getBoardUnmarked();
+            squaresImages = getBoardUnmarked();
         }
         else if(squareToMove.isPresent()){
             boardService.movePiece(squareSelected.get(), squareToMove.get());
             List<Square> squares = boardService.getBoard().getSquares();
-            squareImagesBoard = toListSquareImage(squares);
+            squaresImages = toListSquareImage(squares);
         }
         else if (squareInBoard.isOcuppied()){
             List<SquareImage> squareImages = getSquarePieceSelected(squareInBoard);
-            squareImagesBoard = setAllowedMovementsToSquares(squareInBoard, squareImages);
+            squaresImages = setAllowedMovementsToSquares(squareInBoard, squareImages);
         }
         List<Piece> deadPieces = boardService.getDeadPieces();
+        squareImagesBoard = getSquareImagesWithCheck(squaresImages);
         drawer.draw(squareImagesBoard, deadPieces);
     }
     
@@ -131,6 +133,27 @@ public class BoardController implements EventHandler<MouseEvent>{
         square.setFile(file);
         square.setRank(rank);
         return Optional.of(square);
+    }
+    
+    private List<SquareImage> getSquareImagesWithCheck(List<SquareImage> squares){
+        final Optional<Square> checkSquareWhite = boardService.kingInCheck(Team.WHITE);
+        final Optional<Square> checkSquareBlack = boardService.kingInCheck(Team.BLACK);
+
+        if (checkSquareWhite.isPresent() || checkSquareBlack.isPresent()){
+            final Optional<Square> checkSquare = checkSquareWhite.isPresent() ? checkSquareWhite : checkSquareBlack;
+            return squares.stream()
+                    .map(s-> setCheckSquare(s, checkSquare))
+                    .collect(Collectors.toList());
+        }
+        return squares;
+    }
+    
+    private SquareImage setCheckSquare (SquareImage square, Optional<Square> checkSquare){
+        if(square.equals(checkSquare.get())){
+            square.setCheck(true);
+            return square;
+        }
+        return square;
     }
     
     private SquareImage toSquareImage (Square square){

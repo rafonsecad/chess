@@ -6,15 +6,23 @@
 package org.chessfx.core.service;
 
 import java.util.List;
+import java.util.Optional;
 import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
+import org.chessfx.core.piece.Team;
 
 /**
  *
  * @author rafael
  */
 public interface MovementResolver {
-    List<Square> getAllowedMovements(Square square);
     
     void setBoard(Board board);
+    
+    List<Square> getAllowedMovements(Square square);
+    
+    Optional<Square> kingInCheck(Team team);
+    
+    List<Square> getAllowedMovementsWithoutCheck(List<Square> movements, Square selected);
+            
 }

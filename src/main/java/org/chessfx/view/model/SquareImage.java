@@ -14,6 +14,7 @@ import org.chessfx.core.model.Square;
 public class SquareImage extends Square{
     private boolean selected;
     private boolean option;
+    private boolean check;
 
     public boolean isSelected() {
         return selected;
@@ -29,5 +30,13 @@ public class SquareImage extends Square{
 
     public void setOption(boolean option) {
         this.option = option;
+    }
+
+    public boolean isCheck() {
+        return check;
+    }
+
+    public void setCheck(boolean check) {
+        this.check = check;
     }
 }

@@ -8,6 +8,7 @@ package org.chessfx.core.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.chessfx.core.model.Board;
@@ -50,6 +51,12 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    public Optional<Square> kingInCheck(Team team){
+        resolver.setBoard(board);
+        return resolver.kingInCheck(team);
+    }
+    
+    @Override
     public void movePiece(Square from, Square to) {
         List<Square> squaresWithPiecedMoved = board.getSquares().stream()
                 .map(s -> getSquaresWithPiecedMoved(from, to, s))
@@ -80,7 +87,8 @@ public class BoardServiceImpl implements BoardService {
         boolean isWhiteToMove = (numberOfMoves % 2 == 0);
         if((isWhiteSelected && isWhiteToMove) || (!isWhiteSelected && !isWhiteToMove) ){
             resolver.setBoard(board);
-            return resolver.getAllowedMovements(square);
+            List<Square> movements = resolver.getAllowedMovements(square);
+            return resolver.getAllowedMovementsWithoutCheck(movements, square);
         }
         return new ArrayList<>();
     }

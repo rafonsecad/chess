@@ -7,8 +7,6 @@ package org.chessfx.core.service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.chessfx.core.configuration.AppConfig;
 import org.chessfx.core.model.Square;
 import org.junit.After;

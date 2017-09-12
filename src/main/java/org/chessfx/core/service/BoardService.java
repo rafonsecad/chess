@@ -6,9 +6,11 @@
 package org.chessfx.core.service;
 
 import java.util.List;
+import java.util.Optional;
 import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
+import org.chessfx.core.piece.Team;
 
 /**
  *
@@ -17,6 +19,8 @@ import org.chessfx.core.piece.Piece;
 public interface BoardService {
     
     void initBoard();
+    
+    Optional<Square> kingInCheck(Team team);
     
     void movePiece(Square from, Square to);
     

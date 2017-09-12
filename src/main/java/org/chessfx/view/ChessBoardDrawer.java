@@ -105,6 +105,9 @@ public class ChessBoardDrawer {
         if (square.isSelected()){
             setSelectedEffect(selectedImage);
         }
+        if (square.isCheck()){
+            setCheckEffect(selectedImage);
+        }
         pane.getChildren().add(selectedImage);
         if(square.isOption()){
             showAllowedMove(square);
@@ -138,6 +141,20 @@ public class ChessBoardDrawer {
         color.setContrast(0.5);
         image.setEffect(color);
     }
+    
+    private void setCheckEffect(ImageView image){
+        ColorAdjust color = new ColorAdjust();
+        double hue = map( (Color.RED.getHue() + 180) % 360, 0, 360, -1, 1);
+        color.setHue(hue);
+        color.setSaturation(Color.RED.getSaturation());
+        double brightness = map( Color.RED.getBrightness(), 0, 1, -1, 0);
+        color.setBrightness(brightness);
+        image.setEffect(color);
+    }
+    
+    public double map(double value, double start, double stop, double targetStart, double targetStop) {
+        return targetStart + (targetStop - targetStart) * ((value - start) / (stop - start));
+   }
     
     private int getFileCoordinate (char file){
         int factor = 0;

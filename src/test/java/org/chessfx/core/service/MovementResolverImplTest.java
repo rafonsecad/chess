@@ -8,6 +8,7 @@ package org.chessfx.core.service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
@@ -545,7 +546,7 @@ public class MovementResolverImplTest {
         square.setPiece(piece);
         Piece victim = new Piece(Team.BLACK, TypePiece.BISHOP, true);
         Piece obstacle = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
-        Piece obstacleII = new Piece(Team.WHITE, TypePiece.KING, true);
+        Piece obstacleII = new Piece(Team.WHITE, TypePiece.PAWN, true);
         Piece obstacleIII = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
         List<Square> squares = this.board.getSquares().stream().map(s -> {
                                     if(s.getFile() == 'f' && s.getRank() == 7){
@@ -861,5 +862,128 @@ public class MovementResolverImplTest {
         List<Square> expResult = Stream.of(s1, s2).collect(Collectors.toList());
         List<Square> result = instance.getAllowedMovements(square);
         assertEquals(expResult, result);
+    }
+    
+    @Test
+    public void testIsKingInCheck_KingF5_KingInCheck(){
+        Square square = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 5).findFirst().get();
+        Piece piece = new Piece(Team.WHITE, TypePiece.KING, true);
+        piece.setFirstMovement(false);
+        square.setPiece(piece);
+        Piece attacker = new Piece(Team.BLACK, TypePiece.ROOK, true);
+        List<Square> squares = this.board.getSquares().stream().map(s -> {
+                                    if(s.getFile() == 'f' && s.getRank() == 5){
+                                        square.setOcuppied(true);
+                                        return square;
+                                    }
+                                    if(s.getFile() == 'f' && s.getRank() == 8){
+                                        s.setOcuppied(true);
+                                        s.setPiece(attacker);
+                                        return s;
+                                    }
+                                    return s;
+        }).collect(Collectors.toList());
+        this.board.setSquares(squares);
+        MovementResolverImpl instance = new MovementResolverImpl();
+        instance.setBoard(board);
+        Optional<Square> kingInCheck = instance.kingInCheck(Team.WHITE);
+        assertEquals(true, kingInCheck.isPresent());
+    }
+    
+    @Test
+    public void testIsKingInCheck_KingF5_KingFreeOfCheck(){
+        Square square = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 5).findFirst().get();
+        Piece piece = new Piece(Team.WHITE, TypePiece.KING, true);
+        piece.setFirstMovement(false);
+        square.setPiece(piece);
+        Piece attacker = new Piece(Team.BLACK, TypePiece.ROOK, true);
+        List<Square> squares = this.board.getSquares().stream().map(s -> {
+                                    if(s.getFile() == 'f' && s.getRank() == 5){
+                                        square.setOcuppied(true);
+                                        return square;
+                                    }
+                                    if(s.getFile() == 'g' && s.getRank() == 8){
+                                        s.setOcuppied(true);
+                                        s.setPiece(attacker);
+                                        return s;
+                                    }
+                                    return s;
+        }).collect(Collectors.toList());
+        this.board.setSquares(squares);
+        MovementResolverImpl instance = new MovementResolverImpl();
+        instance.setBoard(board);
+        Optional<Square> kingInCheck = instance.kingInCheck(Team.WHITE);
+        assertEquals(false, kingInCheck.isPresent());
+    }
+    
+    @Test
+    public void testGetAllowedMovements_KingF5_DenyMovementsWhileInCheck(){
+        Square square = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 5).findFirst().get();
+        Piece piece = new Piece(Team.WHITE, TypePiece.KING, true);
+        piece.setFirstMovement(false);
+        square.setPiece(piece);
+        Piece attacker = new Piece(Team.BLACK, TypePiece.ROOK, true);
+        Piece knight = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        List<Square> squares = this.board.getSquares().stream().map(s -> {
+                                    if(s.getFile() == 'f' && s.getRank() == 5){
+                                        square.setOcuppied(true);
+                                        return square;
+                                    }
+                                    if(s.getFile() == 'f' && s.getRank() == 8){
+                                        s.setOcuppied(true);
+                                        s.setPiece(attacker);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'e' && s.getRank() == 4){
+                                        s.setOcuppied(true);
+                                        s.setPiece(knight);
+                                        return s;
+                                    }
+                                    return s;
+        }).collect(Collectors.toList());
+        this.board.setSquares(squares);
+        MovementResolverImpl instance = new MovementResolverImpl();
+        instance.setBoard(board);
+        Square s1 = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 6).findFirst().get();
+        List<Square> expResult = Stream.of(s1).collect(Collectors.toList());
+        Square knightSquare = this.board.getSquares().stream().filter(s -> s.getFile() == 'e' && s.getRank() == 4).findFirst().get();
+        List<Square> result = instance.getAllowedMovements(knightSquare);
+        List<Square> result2 = instance.getAllowedMovementsWithoutCheck(result, knightSquare);
+        assertEquals(expResult, result2);
+    }
+    
+    @Test
+    public void testGetAllowedMovements_KingF5_DenyMovementsIfInCheck(){
+        Square square = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 5).findFirst().get();
+        Piece piece = new Piece(Team.WHITE, TypePiece.KING, true);
+        piece.setFirstMovement(false);
+        square.setPiece(piece);
+        Piece attacker = new Piece(Team.BLACK, TypePiece.ROOK, true);
+        Piece knight = new Piece(Team.WHITE, TypePiece.KNIGHT, true);
+        List<Square> squares = this.board.getSquares().stream().map(s -> {
+                                    if(s.getFile() == 'f' && s.getRank() == 5){
+                                        square.setOcuppied(true);
+                                        return square;
+                                    }
+                                    if(s.getFile() == 'f' && s.getRank() == 8){
+                                        s.setOcuppied(true);
+                                        s.setPiece(attacker);
+                                        return s;
+                                    }
+                                    if(s.getFile() == 'f' && s.getRank() == 6){
+                                        s.setOcuppied(true);
+                                        s.setPiece(knight);
+                                        return s;
+                                    }
+                                    return s;
+        }).collect(Collectors.toList());
+        this.board.setSquares(squares);
+        MovementResolverImpl instance = new MovementResolverImpl();
+        instance.setBoard(board);
+        List<Square> expResult = new ArrayList<>();
+        Square knightSquare = this.board.getSquares().stream().filter(s -> s.getFile() == 'f' && s.getRank() == 6).findFirst().get();
+        List<Square> result = instance.getAllowedMovements(knightSquare);
+        List<Square> result2 = instance.getAllowedMovementsWithoutCheck(result, knightSquare);
+        assertEquals(expResult, result2);
     }
 }

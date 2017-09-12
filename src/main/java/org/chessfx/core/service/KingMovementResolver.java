@@ -5,7 +5,6 @@
  */
 package org.chessfx.core.service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -25,6 +24,25 @@ public class KingMovementResolver {
     
     public void setBoard(Board board){
         this.board = board;
+    }
+    
+    public Optional<Square> kingInCheck(Team team){
+        Optional<Square> kingSquare = getKingSquare(team);
+        if (!kingSquare.isPresent()){
+            return kingSquare;
+        }
+        List<Square> squaresWithEnemies = getSquaresWithEnemies(kingSquare.get());
+        List<Square> attackedSquares = getAttackedSquares(squaresWithEnemies);
+        return attackedSquares.stream()
+              .filter(s -> s.equals(kingSquare.get()))
+              .findFirst();
+    }
+    
+    private Optional<Square> getKingSquare (Team team){
+        Piece king = new Piece(team, TypePiece.KING, true);
+        return board.getSquares().stream()
+               .filter(s -> s.isOcuppied() && s.getPiece().equals(king))
+               .findFirst();
     }
     
     public List<Square> getKingMovements (Square selected){
