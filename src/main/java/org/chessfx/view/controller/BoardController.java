@@ -51,7 +51,7 @@ public class BoardController implements EventHandler<MouseEvent>{
         Square squareInBoard = getSquareInBoard(square.get());
         Optional<SquareImage> squareSelected = squareImagesBoard.stream().filter(sI -> sI.isSelected() == true).findAny();
         Optional<SquareImage> squareToMove = getSquareToMove(squareInBoard);
-        List<SquareImage> squaresImages = new ArrayList<>();
+        List<SquareImage> squaresImages = squareImagesBoard.stream().map(s -> s).collect(Collectors.toList());
         if(squareSelected.isPresent() && squareSelected.get().equals(squareInBoard)){
             squaresImages = getBoardUnmarked();
         }

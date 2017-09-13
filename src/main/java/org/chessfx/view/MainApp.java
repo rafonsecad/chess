@@ -2,8 +2,12 @@ package org.chessfx.view;
 
 import javafx.application.Application;
 import static javafx.application.Application.launch;
-import javafx.scene.Group;
+import javafx.event.EventHandler;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import org.chessfx.core.configuration.AppConfig;
@@ -24,9 +28,20 @@ public class MainApp extends Application {
             boardController.init(boardDrawer);
             pane.setOnMouseClicked(boardController);
             stage.setTitle("Chess FX");
-            Group root = new Group();
-            root.getChildren().add(pane);
-            stage.setScene(new Scene(root));
+            BorderPane borderPane = new BorderPane();
+            HBox hbox = new HBox();
+            Button buttonRestart = new Button("Restart");
+            buttonRestart.setOnMouseClicked(new EventHandler<MouseEvent>(){
+                @Override
+                public void handle(MouseEvent t){
+                    boardController.init(boardDrawer);
+                }
+            });
+            buttonRestart.setPrefSize(100, 20);
+            hbox.getChildren().addAll(buttonRestart);
+            borderPane.setTop(hbox);
+            borderPane.setCenter(pane);
+            stage.setScene(new Scene(borderPane));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
