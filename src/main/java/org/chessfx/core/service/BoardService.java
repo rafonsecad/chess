@@ -24,6 +24,10 @@ public interface BoardService {
     
     void movePiece(Square from, Square to);
     
+    boolean isPiecePromoted(Square square);
+    
+    void promotedPiece(Square square, Piece piece);
+    
     Board getBoard();
     
     List<Piece> getDeadPieces();

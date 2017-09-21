@@ -18,7 +18,9 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
+import org.chessfx.core.piece.TypePiece;
 import org.chessfx.core.service.GraphicsService;
+import org.chessfx.view.model.ChessBoard;
 import org.chessfx.view.model.SquareImage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,12 +38,61 @@ public class ChessBoardDrawer {
     private final int WIDTH = 80;
     private Pane pane;
     
-    public void draw(List<SquareImage> squares, List<Piece> deadPieces){
+    public void draw(ChessBoard chessBoard){
         pane.getChildren().clear();
-        drawDeadPiecesPanes(deadPieces);
-        squares.stream().forEach(square -> {
+        drawDeadPiecesPanes(chessBoard.getDeadPieces());
+        chessBoard.getSquareImages().stream().forEach(square -> {
             drawSquare(square);
         });
+        if (!chessBoard.hasPromotion()){
+            return;
+        }
+        drawPromotionPane(chessBoard.getTeamPromoted());
+    }
+    
+    public void drawPromotionPane(Team team){
+        Rectangle rectangle = new Rectangle();
+        Color color = Color.SADDLEBROWN;
+        rectangle.setX(3.5*WIDTH);
+        rectangle.setY(3*WIDTH);
+        rectangle.setWidth(5*WIDTH);
+        rectangle.setHeight(2*WIDTH);
+        rectangle.setFill(color);
+        rectangle.setStroke(Color.BLACK);
+        pane.getChildren().add(rectangle);
+        
+        Rectangle [] boxes = new Rectangle [4];
+        Piece [] pieces = new Piece[4];
+        pieces[0] = new Piece (team, TypePiece.QUEEN);
+        pieces[1] = new Piece (team, TypePiece.ROOK);
+        pieces[2] = new Piece (team, TypePiece.BISHOP);
+        pieces[3] = new Piece (team, TypePiece.KNIGHT);
+        
+        for (int index = 0; index<boxes.length; index ++){
+            drawPromotedPieces (boxes, pieces, index);
+        }
+        
+    }
+    
+    private void drawPromotedPieces (Rectangle [] boxes, Piece [] pieces, int index){
+        Color colorBox = Color.WHITE;
+        boxes[index] = new Rectangle();
+        double x = 3.7*WIDTH + WIDTH*index + index*0.2*WIDTH;
+        boxes[index].setX(x);
+        boxes[index].setY(3.5*WIDTH);
+        boxes[index].setWidth(WIDTH);
+        boxes[index].setHeight(WIDTH);
+        boxes[index].setFill(colorBox);
+        boxes[index].setStrokeWidth(5.0);
+        boxes[index].setStroke(Color.BLACK);
+        pane.getChildren().add(boxes[index]);
+        BufferedImage im = graphsService.getImage(pieces[index]);
+        Image i = SwingFXUtils.toFXImage(im, null);
+        ImageView selectedImage = new ImageView();
+        selectedImage.setImage(i);
+        selectedImage.setX(x);
+        selectedImage.setY(3.5*WIDTH);
+        pane.getChildren().add(selectedImage);
     }
     
     private void drawDeadPiecesPanes(List<Piece> deadPieces){

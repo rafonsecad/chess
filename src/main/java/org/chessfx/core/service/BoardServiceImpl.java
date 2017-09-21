@@ -68,6 +68,30 @@ public class BoardServiceImpl implements BoardService {
     }
 
     @Override
+    public boolean isPiecePromoted(Square square){
+        if (!square.isOcuppied() || square.getPiece().getType() != TypePiece.PAWN){
+            return false;
+        }
+        Team team = square.getPiece().getTeam();
+        if (team == Team.BLACK){
+            return square.getRank() == 1;
+        }
+        return square.getRank() == 8;
+    }
+    
+    @Override
+    public void promotedPiece (Square square, Piece piece){
+        List<Square> squaresWithPiecePromoted = board.getSquares().stream()
+                     .map(s -> getSquaresWithPiecePromoted(s, square, piece))
+                     .collect(Collectors.toList());
+        board.setSquares(squaresWithPiecePromoted);
+        Board copyBoard = new Board();
+        copyBoard.setSquares(squaresWithPiecePromoted.stream().map(s->s).collect(Collectors.toList()));
+        historic.remove(historic.size() - 1);
+        historic.add(copyBoard);
+    }
+    
+    @Override
     public Board getBoard() {
         return board;
     }
@@ -170,6 +194,13 @@ public class BoardServiceImpl implements BoardService {
             return new Square(to.getRank(), to.getFile(), true, to.isDarkColor(), piece);
         }
         return s;
+    }
+    
+    private Square getSquaresWithPiecePromoted(Square current, Square square, Piece piece){
+        if (current.equals(square)){
+            return new Square(current.getRank(), current.getFile(), true, current.isDarkColor(), piece);
+        }
+        return current;
     }
     
     private void addDeadPiece(Piece piece){
