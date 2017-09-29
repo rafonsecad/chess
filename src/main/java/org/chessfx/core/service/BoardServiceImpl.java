@@ -61,9 +61,15 @@ public class BoardServiceImpl implements BoardService {
         List<Square> squaresWithPiecedMoved = board.getSquares().stream()
                 .map(s -> getSquaresWithPiecedMoved(from, to, s))
                 .collect(Collectors.toList());
-        board.setSquares(squaresWithPiecedMoved);
+        List <Square> squaresWithCastling = squaresWithPiecedMoved.stream()
+                .map(s->s)
+                .collect(Collectors.toList());
+        if (isCastlingMovement(from, to)){
+            squaresWithCastling = getCastlingSquares(from, to, squaresWithPiecedMoved);
+        }
+        board.setSquares(squaresWithCastling);
         Board copyBoard = new Board();
-        copyBoard.setSquares(squaresWithPiecedMoved.stream().map(s->s).collect(Collectors.toList()));
+        copyBoard.setSquares(squaresWithCastling.stream().map(s->s).collect(Collectors.toList()));
         historic.add(copyBoard);
     }
 
@@ -194,6 +200,30 @@ public class BoardServiceImpl implements BoardService {
             return new Square(to.getRank(), to.getFile(), true, to.isDarkColor(), piece);
         }
         return s;
+    }
+    
+    private List<Square> getCastlingSquares (Square from, Square to, List<Square> squaresWithPiecedMoved){
+        char rookFile = (to.getFile() - from.getFile()) == 2 ? 'h' : 'a';
+        char nextRookFile = rookFile == 'h' ? 'f' : 'd';
+        Square rookSquare = squaresWithPiecedMoved.stream()
+                .filter(s -> s.getRank() == from.getRank() && s.getFile() == rookFile).findFirst().get();
+        Square nextRookSquare = squaresWithPiecedMoved.stream()
+                .filter(s -> s.getRank() == from.getRank() && s.getFile() == nextRookFile).findFirst().get();
+        
+        List<Square> squaresWithCastling = squaresWithPiecedMoved.stream()
+                .map(s -> getSquaresWithPiecedMoved(rookSquare, nextRookSquare, s))
+                .collect(Collectors.toList());
+        return squaresWithCastling;
+    }
+    
+    private boolean isCastlingMovement(Square from, Square to){
+        if (from.getPiece().getType() != TypePiece.KING){
+            return false;
+        }
+        if (Math.abs(to.getFile() - from.getFile()) != 2){
+            return false;
+        }
+        return true;
     }
     
     private Square getSquaresWithPiecePromoted(Square current, Square square, Piece piece){
