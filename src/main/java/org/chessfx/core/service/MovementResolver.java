@@ -19,6 +19,8 @@ public interface MovementResolver {
     
     void setBoard(Board board);
     
+    void setHistoricBoards (List<Board> historic);
+    
     List<Square> getAllowedMovements(Square square);
     
     Optional<Square> kingInCheck(Team team);

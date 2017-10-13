@@ -61,6 +61,12 @@ public class BoardServiceImpl implements BoardService {
         List<Square> squaresWithPiecedMoved = board.getSquares().stream()
                 .map(s -> getSquaresWithPiecedMoved(from, to, s))
                 .collect(Collectors.toList());
+        if (isEnPassantMovement(from, to)){
+            List<Square> squaresEnPassant = squaresWithPiecedMoved.stream()
+                    .map(s -> getSquaresEnPassant(from, to, s))
+                    .collect(Collectors.toList());
+            squaresWithPiecedMoved = squaresEnPassant;
+        }
         List <Square> squaresWithCastling = squaresWithPiecedMoved.stream()
                 .map(s->s)
                 .collect(Collectors.toList());
@@ -117,6 +123,7 @@ public class BoardServiceImpl implements BoardService {
         boolean isWhiteToMove = (numberOfMoves % 2 == 0);
         if((isWhiteSelected && isWhiteToMove) || (!isWhiteSelected && !isWhiteToMove) ){
             resolver.setBoard(board);
+            resolver.setHistoricBoards(historic);
             List<Square> movements = resolver.getAllowedMovements(square);
             return resolver.getAllowedMovementsWithoutCheck(movements, square);
         }
@@ -202,6 +209,16 @@ public class BoardServiceImpl implements BoardService {
         return s;
     }
     
+    private Square getSquaresEnPassant(Square from, Square to, Square s){
+        if (from.getRank() == s.getRank() && to.getFile() == s.getFile()){
+            if (s.isOcuppied()){
+                addDeadPiece(s.getPiece());
+            }
+            return new Square(s.getRank(), s.getFile(), false, s.isDarkColor());
+        }
+        return s;
+    }
+    
     private List<Square> getCastlingSquares (Square from, Square to, List<Square> squaresWithPiecedMoved){
         char rookFile = (to.getFile() - from.getFile()) == 2 ? 'h' : 'a';
         char nextRookFile = rookFile == 'h' ? 'f' : 'd';
@@ -231,6 +248,22 @@ public class BoardServiceImpl implements BoardService {
             return new Square(current.getRank(), current.getFile(), true, current.isDarkColor(), piece);
         }
         return current;
+    }
+    
+    private boolean isEnPassantMovement(Square from, Square to){
+        if (from.getPiece().getType() != TypePiece.PAWN){
+            return false;
+        }
+        if (to.isOcuppied()){
+            return false;
+        }
+        if (from.getRank() != to.getRank() + 1 && from.getRank() != to.getRank() - 1){
+            return false;
+        }
+        if (from.getFile() != to.getFile() + 1 && from.getFile() != to.getFile() - 1){
+            return false;
+        }
+        return true;
     }
     
     private void addDeadPiece(Piece piece){

@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 public class MovementResolverImpl implements MovementResolver {
 
     private Board board;
+    private List<Board> historic;
 
     @Override
     public List<Square> getAllowedMovements(Square selected) {
@@ -128,6 +129,11 @@ public class MovementResolverImpl implements MovementResolver {
         this.board = board;
     }
     
+    @Override
+    public void setHistoricBoards(List<Board> historic){
+        this.historic = historic;
+    }
+    
     private List<Square> getKingMovements(Square selected){
         KingMovementResolver kingResolver = new KingMovementResolver();
         kingResolver.setBoard(board);
@@ -161,6 +167,7 @@ public class MovementResolverImpl implements MovementResolver {
     private List<Square> getPawnMovements(Square selected){
         PawnMovementResolver pawnResolver = new PawnMovementResolver();
         pawnResolver.setBoard(board);
+        pawnResolver.setHistoricBoards(historic);
         return pawnResolver.getPawnMovements(selected);
     }
     
