@@ -58,6 +58,7 @@ public class BoardController implements EventHandler<MouseEvent> {
         List<SquareImage> squaresImages = handleChessBoardRequests(square);
         chessBoard.setDeadPieces(boardService.getDeadPieces());
         chessBoard.setSquareImages(getSquareImagesWithCheck(squaresImages));
+        drawer.drawNotation(boardService.getNotations());
         drawer.draw(chessBoard);
     }
     
@@ -71,6 +72,7 @@ public class BoardController implements EventHandler<MouseEvent> {
         List<Square> squares = boardService.getBoard().getSquares();
         List<SquareImage> squaresImages = toListSquareImage(squares);
         chessBoard.setSquareImages(getSquareImagesWithCheck(squaresImages));
+        drawer.drawNotation(boardService.getNotations());
         drawer.draw(chessBoard);
     }
 

@@ -9,6 +9,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.chessfx.core.configuration.AppConfig;
 import org.chessfx.view.controller.BoardController;
@@ -39,8 +42,13 @@ public class MainApp extends Application {
             });
             buttonRestart.setPrefSize(100, 20);
             hbox.getChildren().addAll(buttonRestart);
+            
+            VBox notation = buildNotationPane();
+            boardDrawer.setNotationPane(notation);
+            
             borderPane.setTop(hbox);
             borderPane.setCenter(pane);
+            borderPane.setRight(notation);
             stage.setScene(new Scene(borderPane));
             stage.show();
         } catch (Exception e) {
@@ -60,4 +68,12 @@ public class MainApp extends Application {
         launch(args);
     }
 
+    private static VBox buildNotationPane(){
+        VBox notation = new VBox();
+        notation.setStyle("-fx-background-color: black");
+        Text movements = new Text("Movements");
+        movements.setFill(Color.WHITE);
+        notation.getChildren().add(movements);
+        return notation;
+    }
 }

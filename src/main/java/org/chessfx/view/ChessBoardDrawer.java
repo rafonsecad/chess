@@ -13,9 +13,11 @@ import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
 import org.chessfx.core.piece.TypePiece;
@@ -37,6 +39,7 @@ public class ChessBoardDrawer {
     
     private final int WIDTH = 80;
     private Pane pane;
+    private VBox notationPane;
     
     public void draw(ChessBoard chessBoard){
         pane.getChildren().clear();
@@ -239,5 +242,26 @@ public class ChessBoardDrawer {
     
     public void setPane(Pane pane){
         this.pane = pane;
+    }
+    
+    public void setNotationPane (VBox notationPane){
+        this.notationPane = notationPane;
+    }
+    
+    public void drawNotation(List<String> notations){
+        notationPane.getChildren().clear();
+        Text title = new Text("Movements");
+        title.setFill(Color.WHITE);
+        notationPane.getChildren().add(title);
+        for (int index = 0; index < notations.size(); index += 2){
+            String nextStep = "";
+            if (index + 1 < notations.size()){
+                nextStep = notations.get(index+1);
+            }
+            String step = ((index/2)+1) + ". " + notations.get(index) + " " + nextStep;
+            Text movement = new Text(step);
+            movement.setFill(Color.WHITE);
+            notationPane.getChildren().add(movement);
+        }
     }
 }

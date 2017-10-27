@@ -29,6 +29,7 @@ public class BoardServiceImpl implements BoardService {
     private Board board;
     private List<Board> historic;
     private List<Piece> deadPieces;
+    private List<String> notations;
     
     @Autowired
     private MovementResolver resolver;
@@ -38,6 +39,7 @@ public class BoardServiceImpl implements BoardService {
         board = new Board();
         historic = new ArrayList<>();
         deadPieces = new ArrayList<>();
+        notations = new ArrayList<>();
         List<Square> squares = new ArrayList<>();
         char[] files = new char[]{'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'};
         int[] ranks = new int[]{8, 7, 6, 5, 4, 3, 2, 1};
@@ -58,25 +60,22 @@ public class BoardServiceImpl implements BoardService {
     
     @Override
     public void movePiece(Square from, Square to) {
-        List<Square> squaresWithPiecedMoved = board.getSquares().stream()
-                .map(s -> getSquaresWithPiecedMoved(from, to, s))
-                .collect(Collectors.toList());
+        String notationMove = getNotationAfterPieceMoved(from, to);
+        List<Square> squaresPieceMoved = getSquaresAfterPieceMoved(from, to);
         if (isEnPassantMovement(from, to)){
-            List<Square> squaresEnPassant = squaresWithPiecedMoved.stream()
-                    .map(s -> getSquaresEnPassant(from, to, s))
-                    .collect(Collectors.toList());
-            squaresWithPiecedMoved = squaresEnPassant;
+            List<Square> squaresEnPassant = getListSquaresEP(from, to, squaresPieceMoved);
+            squaresPieceMoved = squaresEnPassant;
         }
-        List <Square> squaresWithCastling = squaresWithPiecedMoved.stream()
-                .map(s->s)
-                .collect(Collectors.toList());
+        List <Square> squaresWithCastling = copyList(squaresPieceMoved);
         if (isCastlingMovement(from, to)){
-            squaresWithCastling = getCastlingSquares(from, to, squaresWithPiecedMoved);
+            notationMove = getCastlingNotation(to);
+            squaresWithCastling = getCastlingSquares(from, to, squaresPieceMoved);
         }
         board.setSquares(squaresWithCastling);
         Board copyBoard = new Board();
-        copyBoard.setSquares(squaresWithCastling.stream().map(s->s).collect(Collectors.toList()));
+        copyBoard.setSquares(copyList(squaresWithCastling));
         historic.add(copyBoard);
+        notations.add(notationMove);
     }
 
     @Override
@@ -98,9 +97,12 @@ public class BoardServiceImpl implements BoardService {
                      .collect(Collectors.toList());
         board.setSquares(squaresWithPiecePromoted);
         Board copyBoard = new Board();
-        copyBoard.setSquares(squaresWithPiecePromoted.stream().map(s->s).collect(Collectors.toList()));
+        copyBoard.setSquares(copyList(squaresWithPiecePromoted));
         historic.remove(historic.size() - 1);
         historic.add(copyBoard);
+        String lastNotation = notations.get(notations.size()-1);
+        lastNotation += "=" + piece.getType().getPieceLetter();
+        notations.set(notations.size()-1, lastNotation);
     }
     
     @Override
@@ -110,9 +112,12 @@ public class BoardServiceImpl implements BoardService {
 
     @Override
     public List<Piece> getDeadPieces(){
-        return deadPieces.stream()
-                .map(p -> p)
-                .collect(Collectors.toList());
+        return copyList(deadPieces);
+    }
+    
+    @Override
+    public List<String> getNotations(){
+        return copyList(notations);
     }
     
     @Override
@@ -209,6 +214,12 @@ public class BoardServiceImpl implements BoardService {
         return s;
     }
     
+    private List<Square> getSquaresAfterPieceMoved (Square from, Square to){
+        return board.getSquares().stream()
+            .map(s -> getSquaresWithPiecedMoved(from, to, s))
+            .collect(Collectors.toList());
+    }
+    
     private Square getSquaresEnPassant(Square from, Square to, Square s){
         if (from.getRank() == s.getRank() && to.getFile() == s.getFile()){
             if (s.isOcuppied()){
@@ -217,6 +228,12 @@ public class BoardServiceImpl implements BoardService {
             return new Square(s.getRank(), s.getFile(), false, s.isDarkColor());
         }
         return s;
+    }
+    
+    private List<Square> getListSquaresEP(Square from, Square to, List<Square> squaresWithPieceMoved){
+        return squaresWithPieceMoved.stream()
+                    .map(s -> getSquaresEnPassant(from, to, s))
+                    .collect(Collectors.toList());
     }
     
     private List<Square> getCastlingSquares (Square from, Square to, List<Square> squaresWithPiecedMoved){
@@ -266,8 +283,38 @@ public class BoardServiceImpl implements BoardService {
         return true;
     }
     
+    private String getNotationAfterPieceMoved (Square from, Square to){
+        String notationMove = from.getPiece().getType().getPieceLetter();
+        if (to.isOcuppied()){
+            if (from.isOcuppied() && from.getPiece().getType() == TypePiece.PAWN){
+                notationMove += from.getFile();
+            }
+            notationMove += "x";
+        }
+        notationMove += to.getFile() + Integer.toString(to.getRank());
+        if (isEnPassantMovement(from, to)){
+            notationMove = from.getFile() + "x";
+            notationMove += to.getFile() + Integer.toString(to.getRank()) + "e.p.";
+        }
+        return notationMove;
+    }
+    
+    private String getCastlingNotation(Square to){
+        String notationMove = "O-O";
+        if (to.getFile() == 'c'){
+            return "O-O-O";
+        }
+        return notationMove;
+    }
+    
     private void addDeadPiece(Piece piece){
         Piece deadPiece = new Piece(piece.getTeam(), piece.getType(), false, false);
         deadPieces.add(deadPiece);
+    }
+    
+    private List copyList (List list){
+        return (List) list.stream()
+                .map(e -> e)
+                .collect(Collectors.toList());
     }
 }

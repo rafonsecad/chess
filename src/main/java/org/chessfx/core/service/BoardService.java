@@ -34,4 +34,5 @@ public interface BoardService {
     
     List<Square> getAllowedMovements(Square square);
     
+    List<String> getNotations();
 }
