@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.chessfx.core.service;
+package org.chessfx.core.service.movementResolver;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,15 +15,23 @@ import org.chessfx.core.piece.Team;
  *
  * @author rafael
  */
-public class KnightMovementResolver {
+public class KnightMovementResolver implements PieceMovementResolver {
     
     private Board board;
+    private List<Board> historic;
     
+    @Override
     public void setBoard(Board board){
         this.board = board;
     }
     
-    public List<Square> getKnightMovements (Square selected){
+    @Override
+    public void setHistoricBoards (List<Board> historic){
+        this.historic = historic;
+    }
+    
+    @Override
+    public List<Square> getMovements (Square selected){
         List<Square> movements = this.board.getSquares().stream()
                                  .filter(square -> isKnightMovement(square, selected))
                                  .collect(Collectors.toList());

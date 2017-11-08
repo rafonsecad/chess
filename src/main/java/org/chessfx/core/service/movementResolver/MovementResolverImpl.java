@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.chessfx.core.service;
+package org.chessfx.core.service.movementResolver;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +13,7 @@ import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
 import org.chessfx.core.piece.TypePiece;
+import org.chessfx.core.service.MovementResolver;
 import org.springframework.stereotype.Component;
 
 /**
@@ -27,32 +28,11 @@ public class MovementResolverImpl implements MovementResolver {
 
     @Override
     public List<Square> getAllowedMovements(Square selected) {
-        List<Square> movements;
         TypePiece type = selected.getPiece().getType();
-        switch(type){
-            case PAWN:
-                movements = getPawnMovements(selected);
-                break;
-            case KNIGHT:
-                movements = getKnightMovements(selected);
-                break;
-            case ROOK:
-                movements = getRookMovements(selected);
-                break;
-            case BISHOP:
-                movements = getBishopMovements(selected);
-                break;
-            case QUEEN:
-                movements = getQueenMovements(selected);
-                break;
-            case KING:
-                movements = getKingMovements(selected);
-                break;
-            default:
-                movements = getKingMovements(selected);
-                break;
-        }
-        return movements;
+        PieceMovementResolver pieceResolver = PieceResolverFactory.getPieceResolver(type);
+        pieceResolver.setBoard(board);
+        pieceResolver.setHistoricBoards(historic);
+        return pieceResolver.getMovements(selected);
     }
 
     @Override
@@ -132,43 +112,5 @@ public class MovementResolverImpl implements MovementResolver {
     @Override
     public void setHistoricBoards(List<Board> historic){
         this.historic = historic;
-    }
-    
-    private List<Square> getKingMovements(Square selected){
-        KingMovementResolver kingResolver = new KingMovementResolver();
-        kingResolver.setBoard(board);
-        return kingResolver.getKingMovements(selected);
-    }
-    
-    private List<Square> getRookMovements(Square selected){
-        GeneralMovementResolver generalResolver = new GeneralMovementResolver();
-        generalResolver.setBoard(board);
-        return generalResolver.getRookMovements(selected);
-    }
-    
-    private List<Square> getBishopMovements(Square selected){
-        GeneralMovementResolver generalResolver = new GeneralMovementResolver();
-        generalResolver.setBoard(board);
-        return generalResolver.getBishopMovements(selected);
-    }
-    
-    private List<Square> getQueenMovements(Square selected){
-        GeneralMovementResolver generalResolver = new GeneralMovementResolver();
-        generalResolver.setBoard(board);
-        return generalResolver.getQueenMovements(selected);
-    }
-    
-    private List<Square> getKnightMovements(Square selected){
-        KnightMovementResolver knightResolver = new KnightMovementResolver();
-        knightResolver.setBoard(board);
-        return knightResolver.getKnightMovements(selected);
-    }
-    
-    private List<Square> getPawnMovements(Square selected){
-        PawnMovementResolver pawnResolver = new PawnMovementResolver();
-        pawnResolver.setBoard(board);
-        pawnResolver.setHistoricBoards(historic);
-        return pawnResolver.getPawnMovements(selected);
-    }
-    
+    }   
 }

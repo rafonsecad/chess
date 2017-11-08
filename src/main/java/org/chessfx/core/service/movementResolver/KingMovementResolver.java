@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.chessfx.core.service;
+package org.chessfx.core.service.movementResolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,17 +14,25 @@ import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
 import org.chessfx.core.piece.TypePiece;
+import org.chessfx.core.service.MovementResolver;
 
 /**
  *
  * @author rafael
  */
-public class KingMovementResolver {
+public class KingMovementResolver implements PieceMovementResolver{
     
     private Board board;
+    private List<Board> historic;
     
+    @Override
     public void setBoard(Board board){
         this.board = board;
+    }
+    
+    @Override
+    public void setHistoricBoards (List<Board> historic){
+        this.historic = historic;
     }
     
     public Optional<Square> kingInCheck(Team team){
@@ -46,7 +54,8 @@ public class KingMovementResolver {
                .findFirst();
     }
     
-    public List<Square> getKingMovements (Square selected){
+    @Override
+    public List<Square> getMovements (Square selected){
         List<Square> freeMovements = getKingFreeMovements(selected);
         List<Square> squaresWithEnemies = getSquaresWithEnemies(selected);
         List<Square> attackedSquares = getAttackedSquares(squaresWithEnemies);

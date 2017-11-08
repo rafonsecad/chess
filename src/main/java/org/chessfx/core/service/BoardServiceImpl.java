@@ -14,7 +14,6 @@ import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
 import org.chessfx.core.piece.TypePiece;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -29,9 +28,12 @@ public class BoardServiceImpl implements BoardService {
     private List<Piece> deadPieces;
     private List<String> notations;
     
-    @Autowired
     private MovementResolver resolver;
 
+    public BoardServiceImpl (MovementResolver resolver){
+        this.resolver = resolver;
+    }
+    
     @Override
     public void initBoard() {
         board = new Board();

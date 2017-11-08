@@ -5,6 +5,7 @@
  */
 package org.chessfx.core.service;
 
+import org.chessfx.core.service.movementResolver.MovementResolverImpl;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

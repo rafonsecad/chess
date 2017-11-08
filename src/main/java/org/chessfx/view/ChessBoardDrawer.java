@@ -24,7 +24,6 @@ import org.chessfx.core.piece.TypePiece;
 import org.chessfx.core.service.GraphicsService;
 import org.chessfx.view.model.ChessBoard;
 import org.chessfx.view.model.SquareImage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -34,12 +33,15 @@ import org.springframework.stereotype.Component;
 @Component("ChessBoardDrawer")
 public class ChessBoardDrawer {
     
-    @Autowired
     private GraphicsService graphsService;
     
     private final int WIDTH = 80;
     private Pane pane;
     private VBox notationPane;
+    
+    public ChessBoardDrawer (GraphicsService graphService){
+        this.graphsService = graphService;
+    }
     
     public void draw(ChessBoard chessBoard){
         pane.getChildren().clear();

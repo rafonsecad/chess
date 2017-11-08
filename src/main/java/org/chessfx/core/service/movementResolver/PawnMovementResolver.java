@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.chessfx.core.service;
+package org.chessfx.core.service.movementResolver;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,20 +21,23 @@ import org.chessfx.core.piece.TypePiece;
  *
  * @author rafael
  */
-public class PawnMovementResolver {
+public class PawnMovementResolver implements PieceMovementResolver{
     
     private Board board;
     private List<Board> historic;
     
+    @Override
     public void setBoard(Board board){
         this.board = board;
     }
     
+    @Override
     public void setHistoricBoards (List<Board> historic){
         this.historic = historic;
     }
     
-    public List<Square> getPawnMovements (Square selected){
+    @Override
+    public List<Square> getMovements (Square selected){
         List<Square> movements = getPawnFreeMovements(selected);
         List<Square> movementsWithObstacles = getPawnMovementsWithObstacles(movements, selected);
         List<Square> attackingSquares = getAttackingSquares(selected);

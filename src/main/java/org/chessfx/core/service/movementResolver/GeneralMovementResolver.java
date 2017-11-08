@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.chessfx.core.service;
+package org.chessfx.core.service.movementResolver;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -20,9 +20,14 @@ import org.chessfx.core.model.Square;
 public class GeneralMovementResolver {
     
     private Board board;
+    private List<Board> historic;
     
     public void setBoard(Board board){
         this.board = board;
+    }
+    
+    public void setHistoricBoards (List<Board> historic){
+        this.historic = historic;
     }
     
     public List<Square> getQueenMovements(Square selected){

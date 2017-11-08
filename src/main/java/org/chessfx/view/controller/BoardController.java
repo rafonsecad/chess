@@ -18,7 +18,6 @@ import org.chessfx.core.service.BoardService;
 import org.chessfx.view.ChessBoardDrawer;
 import org.chessfx.view.model.ChessBoard;
 import org.chessfx.view.model.SquareImage;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -28,13 +27,16 @@ import org.springframework.stereotype.Component;
 @Component("BoardController")
 public class BoardController implements EventHandler<MouseEvent> {
 
-    @Autowired
     private BoardService boardService;
 
     private ChessBoardDrawer drawer;
     private final int WIDTH = 80;
     private ChessBoard chessBoard;
 
+    public BoardController (BoardService boardService){
+        this.boardService = boardService;
+    }
+    
     public void init(ChessBoardDrawer drawer) {
         this.drawer = drawer;
         boardService.initBoard();
