@@ -6,11 +6,9 @@
 package org.chessfx.core.service;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.chessfx.core.model.Board;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
