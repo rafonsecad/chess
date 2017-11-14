@@ -27,7 +27,7 @@ import org.springframework.stereotype.Component;
 @Component("BoardController")
 public class BoardController implements EventHandler<MouseEvent> {
 
-    private BoardService boardService;
+    final private BoardService boardService;
 
     private ChessBoardDrawer drawer;
     private final int WIDTH = 80;
@@ -60,7 +60,7 @@ public class BoardController implements EventHandler<MouseEvent> {
         List<SquareImage> squaresImages = handleChessBoardRequests(square);
         chessBoard.setDeadPieces(boardService.getDeadPieces());
         chessBoard.setSquareImages(getSquareImagesWithCheck(squaresImages));
-        drawer.drawNotation(boardService.getNotations());
+        chessBoard.setNotations(boardService.getNotations());
         drawer.draw(chessBoard);
     }
     
@@ -74,7 +74,7 @@ public class BoardController implements EventHandler<MouseEvent> {
         List<Square> squares = boardService.getBoard().getSquares();
         List<SquareImage> squaresImages = toListSquareImage(squares);
         chessBoard.setSquareImages(getSquareImagesWithCheck(squaresImages));
-        drawer.drawNotation(boardService.getNotations());
+        chessBoard.setNotations(boardService.getNotations());
         drawer.draw(chessBoard);
     }
 
@@ -100,7 +100,11 @@ public class BoardController implements EventHandler<MouseEvent> {
         boardService.movePiece(squareSelected, squareToMove);
         List<Square> squares = boardService.getBoard().getSquares();
         List<SquareImage> squaresImages = toListSquareImage(squares);
-        Square squareWithPiece = new Square(squareToMove.getRank(), squareToMove.getFile(), true, squareToMove.isDarkColor(), squareSelected.getPiece());
+        Square squareWithPiece = new Square(squareToMove.getRank(), 
+                squareToMove.getFile(), 
+                true, 
+                squareToMove.isDarkColor(), 
+                squareSelected.getPiece());
         boolean promotionFlag = boardService.isPiecePromoted(squareWithPiece);
         Team teamPromoted = squareWithPiece.getPiece().getTeam();
         chessBoard.setPromotion(promotionFlag);

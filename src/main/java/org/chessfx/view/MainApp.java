@@ -27,6 +27,8 @@ public class MainApp extends Application {
             ChessBoardDrawer boardDrawer = (ChessBoardDrawer) context.getBean("ChessBoardDrawer");
             BoardController boardController = (BoardController) context.getBean("BoardController");
             Pane pane = new Pane();
+            VBox notation = buildNotationPane();
+            boardDrawer.setNotationPane(notation);
             boardDrawer.setPane(pane);
             boardController.init(boardDrawer);
             pane.setOnMouseClicked(boardController);
@@ -42,9 +44,6 @@ public class MainApp extends Application {
             });
             buttonRestart.setPrefSize(100, 20);
             hbox.getChildren().addAll(buttonRestart);
-            
-            VBox notation = buildNotationPane();
-            boardDrawer.setNotationPane(notation);
             
             borderPane.setTop(hbox);
             borderPane.setCenter(pane);

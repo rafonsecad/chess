@@ -28,7 +28,7 @@ public class BoardServiceImpl implements BoardService {
     private List<Piece> deadPieces;
     private List<String> notations;
     
-    private MovementResolver resolver;
+    final private MovementResolver resolver;
 
     public BoardServiceImpl (MovementResolver resolver){
         this.resolver = resolver;

@@ -19,6 +19,7 @@ import org.chessfx.core.piece.Team;
 public class ChessBoard {
     private List<SquareImage> squareImages;
     private List<Piece> deadPieces;
+    private List<String> notations;
     private boolean promotion;
     private Team teamPromoted;
     private Square squarePromoted;
@@ -26,6 +27,7 @@ public class ChessBoard {
     public ChessBoard(){
         squareImages = new ArrayList<>();
         deadPieces = new ArrayList<>();
+        notations = new ArrayList<>();
         promotion = false;
         teamPromoted = Team.WHITE;
     }
@@ -69,5 +71,12 @@ public class ChessBoard {
     public void setSquarePromoted(Square squarePromoted) {
         this.squarePromoted = squarePromoted;
     }
-    
+
+    public List<String> getNotations() {
+        return notations.stream().map(n -> n).collect(Collectors.toList());
+    }
+
+    public void setNotations(List<String> notations) {
+        this.notations = notations;
+    }
 }

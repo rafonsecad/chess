@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
 @Component("ChessBoardDrawer")
 public class ChessBoardDrawer {
     
-    private GraphicsService graphsService;
+    final private GraphicsService graphsService;
     
     private final int WIDTH = 80;
     private Pane pane;
@@ -49,6 +49,7 @@ public class ChessBoardDrawer {
         chessBoard.getSquareImages().stream().forEach(square -> {
             drawSquare(square);
         });
+        drawNotation(chessBoard.getNotations());
         if (!chessBoard.hasPromotion()){
             return;
         }
@@ -250,7 +251,7 @@ public class ChessBoardDrawer {
         this.notationPane = notationPane;
     }
     
-    public void drawNotation(List<String> notations){
+    private void drawNotation(List<String> notations){
         notationPane.getChildren().clear();
         Text title = new Text("Movements");
         title.setFill(Color.WHITE);
