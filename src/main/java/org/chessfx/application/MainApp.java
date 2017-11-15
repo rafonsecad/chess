@@ -1,4 +1,4 @@
-package org.chessfx.view;
+package org.chessfx.application;
 
 import javafx.application.Application;
 import static javafx.application.Application.launch;
@@ -14,7 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import org.chessfx.core.configuration.AppConfig;
-import org.chessfx.view.controller.BoardController;
+import org.chessfx.application.controller.BoardController;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.context.support.AbstractApplicationContext;
 

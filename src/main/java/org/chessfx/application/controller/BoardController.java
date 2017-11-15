@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.chessfx.view.controller;
+package org.chessfx.application.controller;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,11 +13,12 @@ import javafx.scene.input.MouseEvent;
 import org.chessfx.core.model.Square;
 import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
-import org.chessfx.core.piece.TypePiece;
 import org.chessfx.core.service.BoardService;
-import org.chessfx.view.ChessBoardDrawer;
-import org.chessfx.view.model.ChessBoard;
-import org.chessfx.view.model.SquareImage;
+import org.chessfx.application.ChessBoardDrawer;
+import static org.chessfx.application.adapter.SquareImageAdapter.toListSquareImage;
+import static org.chessfx.application.adapter.SquareImageAdapter.toSquareImage;
+import org.chessfx.application.model.ChessBoard;
+import org.chessfx.application.model.SquareImage;
 import org.springframework.stereotype.Component;
 
 /**
@@ -32,6 +33,7 @@ public class BoardController implements EventHandler<MouseEvent> {
     private ChessBoardDrawer drawer;
     private final int WIDTH = 80;
     private ChessBoard chessBoard;
+    private PromotionController promotionController;
 
     public BoardController (BoardService boardService){
         this.boardService = boardService;
@@ -43,41 +45,40 @@ public class BoardController implements EventHandler<MouseEvent> {
         chessBoard = new ChessBoard();
         List<Square> squares = boardService.getBoard().getSquares();
         chessBoard.setSquareImages(toListSquareImage(squares));
+        promotionController = new PromotionController(boardService, chessBoard);
         this.drawer.draw(chessBoard);
     }
 
     @Override
     public void handle(MouseEvent event) {
         if (chessBoard.hasPromotion()){
-            Optional<Piece> piecePromoted = getPiecePromoted(event.getX(), event.getY());
-            promotePiece(piecePromoted);
+            PromotePiece(event);
             return;
         }
         Optional<Square> square = getSquareByCoordinates(event.getX(), event.getY());
         if (!square.isPresent()) {
             return;
         }
-        List<SquareImage> squaresImages = handleChessBoardRequests(square);
+        List<SquareImage> squareImages = handleChessBoardRequests(square);
+        updateView(squareImages);
+    }
+    
+    private void PromotePiece (MouseEvent event){
+        Optional<Piece> piecePromoted; 
+        piecePromoted = promotionController.getPiecePromoted(event.getX(), event.getY());
+        List<SquareImage> squareImages = promotionController.getPromotionSquares(piecePromoted);
+        if (!squareImages.isEmpty()){
+            updateView(squareImages);
+        }
+    }
+
+    private void updateView(List<SquareImage> squareImages){
         chessBoard.setDeadPieces(boardService.getDeadPieces());
-        chessBoard.setSquareImages(getSquareImagesWithCheck(squaresImages));
+        chessBoard.setSquareImages(getSquareImagesWithCheck(squareImages));
         chessBoard.setNotations(boardService.getNotations());
         drawer.draw(chessBoard);
     }
     
-    private void promotePiece (Optional<Piece> piece){
-        if (!piece.isPresent()){
-            return;
-        }
-        Piece fullPiece = new Piece (chessBoard.getTeamPromoted(), piece.get().getType());
-        boardService.promotedPiece(chessBoard.getSquarePromoted(), fullPiece);
-        chessBoard.setPromotion(false);
-        List<Square> squares = boardService.getBoard().getSquares();
-        List<SquareImage> squaresImages = toListSquareImage(squares);
-        chessBoard.setSquareImages(getSquareImagesWithCheck(squaresImages));
-        chessBoard.setNotations(boardService.getNotations());
-        drawer.draw(chessBoard);
-    }
-
     private List<SquareImage> handleChessBoardRequests(Optional<Square> square){
         List<SquareImage> squareImagesBoard = chessBoard.getSquareImages();
         Square squareInBoard = getSquareInBoard(square.get());
@@ -182,42 +183,6 @@ public class BoardController implements EventHandler<MouseEvent> {
         square.setRank(rank);
         return Optional.of(square);
     }
-
-    private Optional<Piece> getPiecePromoted(double x, double y){
-        if (3.5*WIDTH > y || 4.5*WIDTH < y){
-            return Optional.empty();
-        }
-        double [] xMins = new double [4];
-        double [] xMaxs = new double [4];
-        for (int index=0; index < xMins.length; index++){
-            xMins[index] = 3.7*WIDTH + WIDTH*index + index*0.2*WIDTH;
-            xMaxs[index] = xMins[index] + WIDTH;
-            if (xMins[index] <= x && xMaxs[index] >= x){
-                return selectPiecePromoted(index);
-            }
-        }
-        return Optional.empty();
-    }
-    
-    private Optional<Piece> selectPiecePromoted(int index){
-        Piece piece = new Piece(Team.WHITE, TypePiece.QUEEN);
-        switch(index){
-            case 0:
-                piece = new Piece(Team.WHITE, TypePiece.QUEEN);
-                return Optional.of(piece);
-            case 1:
-                piece = new Piece(Team.WHITE, TypePiece.ROOK);
-                return Optional.of(piece);
-            case 2:
-                piece = new Piece(Team.WHITE, TypePiece.BISHOP);
-                return Optional.of(piece);
-            case 3:
-                piece = new Piece(Team.WHITE, TypePiece.KNIGHT);
-                return Optional.of(piece);
-            default:
-                return Optional.of(piece);
-        }
-    }
     
     private List<SquareImage> getSquareImagesWithCheck(List<SquareImage> squares) {
         final Optional<Square> checkSquareWhite = boardService.kingInCheck(Team.WHITE);
@@ -238,19 +203,5 @@ public class BoardController implements EventHandler<MouseEvent> {
             return square;
         }
         return square;
-    }
-
-    private SquareImage toSquareImage(Square square) {
-        SquareImage squareImage = new SquareImage();
-        squareImage.setDarkColor(square.isDarkColor());
-        squareImage.setFile(square.getFile());
-        squareImage.setRank(square.getRank());
-        squareImage.setOcuppied(square.isOcuppied());
-        squareImage.setPiece(square.getPiece());
-        return squareImage;
-    }
-
-    private List<SquareImage> toListSquareImage(List<Square> squares) {
-        return squares.stream().map(s -> toSquareImage(s)).collect(Collectors.toList());
     }
 }

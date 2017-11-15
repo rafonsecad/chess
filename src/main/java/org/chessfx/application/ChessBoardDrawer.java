@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.chessfx.view;
+package org.chessfx.application;
 
 import java.awt.image.BufferedImage;
 import java.util.List;
@@ -22,8 +22,8 @@ import org.chessfx.core.piece.Piece;
 import org.chessfx.core.piece.Team;
 import org.chessfx.core.piece.TypePiece;
 import org.chessfx.core.service.GraphicsService;
-import org.chessfx.view.model.ChessBoard;
-import org.chessfx.view.model.SquareImage;
+import org.chessfx.application.model.ChessBoard;
+import org.chessfx.application.model.SquareImage;
 import org.springframework.stereotype.Component;
 
 /**

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.chessfx.view.model;
+package org.chessfx.application.model;
 
 import org.chessfx.core.model.Square;
 
