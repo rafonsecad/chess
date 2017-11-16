@@ -13,19 +13,22 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.chessfx.core.configuration.AppConfig;
 import org.chessfx.application.controller.BoardController;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.support.AbstractApplicationContext;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
+@SpringBootApplication(scanBasePackages = "org.chessfx")
 public class MainApp extends Application {
 
+    private ConfigurableApplicationContext springContext;
+    
     @Override
     public void start(Stage stage) throws Exception {
         try {
-            AbstractApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-            ChessBoardDrawer boardDrawer = (ChessBoardDrawer) context.getBean("ChessBoardDrawer");
-            BoardController boardController = (BoardController) context.getBean("BoardController");
+            springContext = SpringApplication.run(MainApp.class);
+            ChessBoardDrawer boardDrawer = (ChessBoardDrawer) springContext.getBean("ChessBoardDrawer");
+            BoardController boardController = (BoardController) springContext.getBean("BoardController");
             Pane pane = new Pane();
             VBox notation = buildNotationPane();
             boardDrawer.setNotationPane(notation);
@@ -74,5 +77,10 @@ public class MainApp extends Application {
         movements.setFill(Color.WHITE);
         notation.getChildren().add(movements);
         return notation;
+    }
+    
+    @Override
+    public void stop(){
+        springContext.close();
     }
 }

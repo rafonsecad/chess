@@ -7,7 +7,7 @@ package org.chessfx.core.service;
 
 import java.util.Collections;
 import java.util.List;
-import org.chessfx.core.configuration.AppConfig;
+import org.chessfx.application.MainApp;
 import org.chessfx.core.model.Square;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -45,7 +45,7 @@ public class BoardServiceImplTest {
 
     @Test
     public void allowedMovements_Players() {
-        AbstractApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        AbstractApplicationContext context = new AnnotationConfigApplicationContext(MainApp.class);
         BoardServiceImpl service = (BoardServiceImpl) context.getBean("BoardServiceImpl");
         service.initBoard();
         Square square = service.getBoard().getSquares().stream()
