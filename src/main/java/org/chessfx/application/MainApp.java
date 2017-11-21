@@ -2,18 +2,12 @@ package org.chessfx.application;
 
 import javafx.application.Application;
 import static javafx.application.Application.launch;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import org.chessfx.application.controller.BoardController;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -21,37 +15,16 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication(scanBasePackages = "org.chessfx")
 public class MainApp extends Application {
 
-    private ConfigurableApplicationContext springContext;
+    private static ConfigurableApplicationContext springContext;
     
     @Override
     public void start(Stage stage) throws Exception {
         try {
             springContext = SpringApplication.run(MainApp.class);
-            ChessBoardDrawer boardDrawer = (ChessBoardDrawer) springContext.getBean("ChessBoardDrawer");
-            BoardController boardController = (BoardController) springContext.getBean("BoardController");
-            Pane pane = new Pane();
-            VBox notation = buildNotationPane();
-            boardDrawer.setNotationPane(notation);
-            boardDrawer.setPane(pane);
-            boardController.init(boardDrawer);
-            pane.setOnMouseClicked(boardController);
             stage.setTitle("Chess FX");
-            BorderPane borderPane = new BorderPane();
-            HBox hbox = new HBox();
-            Button buttonRestart = new Button("Restart");
-            buttonRestart.setOnMouseClicked(new EventHandler<MouseEvent>(){
-                @Override
-                public void handle(MouseEvent t){
-                    boardController.init(boardDrawer);
-                }
-            });
-            buttonRestart.setPrefSize(100, 20);
-            hbox.getChildren().addAll(buttonRestart);
-            
-            borderPane.setTop(hbox);
-            borderPane.setCenter(pane);
-            borderPane.setRight(notation);
-            stage.setScene(new Scene(borderPane));
+            BorderPane appPane = new BorderPane();
+            getMainMenu(appPane);
+            stage.setScene(new Scene(appPane));
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -69,14 +42,28 @@ public class MainApp extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-
-    private static VBox buildNotationPane(){
-        VBox notation = new VBox();
-        notation.setStyle("-fx-background-color: black");
-        Text movements = new Text("Movements");
-        movements.setFill(Color.WHITE);
-        notation.getChildren().add(movements);
-        return notation;
+    
+    public static void getMainMenu (BorderPane appPane){
+        Pane menu = new Pane();
+        Button singleGame = new Button("Single Computer Game");
+        Button otherComputers =  new Button("Find Other Computers");
+        
+        singleGame.setOnMouseClicked((MouseEvent t) -> {
+            SingleComputerApp.getApp(springContext, appPane);
+        });
+        otherComputers.setOnMouseClicked((MouseEvent t)->{
+            
+        });
+        menu.setPrefSize(13*80, 9*80);
+        singleGame.setPrefSize(200, 20);
+        singleGame.setLayoutX(6*80);
+        singleGame.setLayoutY(4*80);
+        otherComputers.setPrefSize(200, 20);
+        otherComputers.setLayoutX(6*80);
+        otherComputers.setLayoutY(5*80);
+        menu.getChildren().add(singleGame);
+        menu.getChildren().add(otherComputers);
+        appPane.setTop(menu);
     }
     
     @Override
