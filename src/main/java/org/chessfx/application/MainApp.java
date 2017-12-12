@@ -52,7 +52,7 @@ public class MainApp extends Application {
             SingleComputerApp.getApp(springContext, appPane);
         });
         otherComputers.setOnMouseClicked((MouseEvent t)->{
-            
+            NetworkApp.getApp(springContext, appPane);
         });
         menu.setPrefSize(13*80, 9*80);
         singleGame.setPrefSize(200, 20);
@@ -63,7 +63,7 @@ public class MainApp extends Application {
         otherComputers.setLayoutY(5*80);
         menu.getChildren().add(singleGame);
         menu.getChildren().add(otherComputers);
-        appPane.setTop(menu);
+        appPane.setCenter(menu);
     }
     
     @Override
