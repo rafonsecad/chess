@@ -52,7 +52,7 @@ public class BoardController implements EventHandler<MouseEvent> {
         List<Square> squares = boardService.getBoard().getSquares();
         chessBoard.setSquareImages(toListSquareImage(squares));
         promotionController = new PromotionController(boardService, chessBoard);
-        updateView(chessBoard.getSquareImages());
+        strategy.updateView(drawer, chessBoard);
     }
 
     @Override

@@ -10,6 +10,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -38,8 +39,12 @@ public class NetworkApp {
     private static String ipClient;
     private static ObservableList<Server> data;
     private static ServerUDP serverUDP;
+    private static BorderPane pane;
+    private static ConfigurableApplicationContext context;
     
     public static void getApp(ConfigurableApplicationContext springContext, BorderPane appPane){
+        pane = appPane;
+        context = springContext;
         TilePane tile = new TilePane();
         tile.setPadding(new Insets(5, 0, 5, 0));
         tile.setPrefColumns(2);
@@ -70,17 +75,25 @@ public class NetworkApp {
             row.setOnMouseClicked(event -> {
                 if (!row.isEmpty() && event.getButton() == MouseButton.PRIMARY ){
                     Server serverClicked = row.getItem();
+                    System.out.println(serverClicked.getIp());
                     String url = "http://" + serverClicked.getIp() + ":8080/api/server/requestgame";
                     RestTemplate restTemplate = new RestTemplate();
-                    ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
+                    ResponseEntity<Void> response = restTemplate.getForEntity(url, Void.class);
                     if (response.getStatusCode().toString().equals("200")){
                         ipServer = serverClicked.getIp();
                         udp.pause();
+                        ClientApp.getApp(springContext, appPane);
+                        url = "http://" + serverClicked.getIp() + ":8080/api/server/startgame";
+                        restTemplate.postForEntity(url, "" ,Void.class);
                     }
                 }
             });
             return row;
         });
+    }
+    
+    public static void startGame(){
+        Platform.runLater(()->ServerApp.getApp(context, pane, ipClient));
     }
     
     public static void stopServer(){
