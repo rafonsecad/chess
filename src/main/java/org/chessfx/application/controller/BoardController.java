@@ -17,6 +17,7 @@ import org.chessfx.core.service.BoardService;
 import org.chessfx.application.ChessBoardDrawer;
 import static org.chessfx.application.adapter.SquareImageAdapter.toListSquareImage;
 import static org.chessfx.application.adapter.SquareImageAdapter.toSquareImage;
+import org.chessfx.application.controller.strategy.BoardControllerStrategy;
 import org.chessfx.application.model.ChessBoard;
 import org.chessfx.application.model.SquareImage;
 import org.springframework.stereotype.Component;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Component;
 public class BoardController implements EventHandler<MouseEvent> {
 
     final private BoardService boardService;
+    private BoardControllerStrategy strategy;
 
     private ChessBoardDrawer drawer;
     private final int WIDTH = 80;
@@ -37,6 +39,10 @@ public class BoardController implements EventHandler<MouseEvent> {
 
     public BoardController (BoardService boardService){
         this.boardService = boardService;
+    }
+    
+    public void setStrategy(BoardControllerStrategy strategy){
+        this.strategy = strategy;
     }
     
     public void init(ChessBoardDrawer drawer) {
@@ -76,7 +82,7 @@ public class BoardController implements EventHandler<MouseEvent> {
         chessBoard.setDeadPieces(boardService.getDeadPieces());
         chessBoard.setSquareImages(getSquareImagesWithCheck(squareImages));
         chessBoard.setNotations(boardService.getNotations());
-        drawer.draw(chessBoard);
+        strategy.updateView(drawer, chessBoard);
     }
     
     private List<SquareImage> handleChessBoardRequests(Optional<Square> square){

@@ -5,7 +5,6 @@
  */
 package org.chessfx.application;
 
-import javafx.event.EventHandler;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -15,6 +14,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import org.chessfx.application.controller.BoardController;
+import org.chessfx.application.controller.strategy.SingleBoardStrategy;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
@@ -29,6 +29,7 @@ public class SingleComputerApp {
     public static void getApp(ConfigurableApplicationContext springContext, BorderPane appPane){
         drawer = (ChessBoardDrawer) springContext.getBean("ChessBoardDrawer");
         boardController = (BoardController) springContext.getBean("BoardController");
+        boardController.setStrategy(new SingleBoardStrategy());
         Pane chessBoard = new Pane();
         VBox notation = buildNotationPane();
         HBox upperMenu = buildUpperMenu();
