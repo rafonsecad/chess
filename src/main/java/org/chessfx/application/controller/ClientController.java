@@ -6,8 +6,8 @@
 package org.chessfx.application.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import org.chessfx.application.ClientApp;
-import org.chessfx.application.NetworkApp;
+import org.chessfx.application.networkapp.ClientApp;
+import org.chessfx.application.networkapp.NetworkApp;
 import org.chessfx.application.model.ChessBoard;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

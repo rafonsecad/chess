@@ -6,7 +6,7 @@
 package org.chessfx.application.controller;
 
 import javax.servlet.http.HttpServletRequest;
-import org.chessfx.application.NetworkApp;
+import org.chessfx.application.networkapp.NetworkApp;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,7 +23,7 @@ public class ServerController {
     public ResponseEntity<Void> requestGame(HttpServletRequest request){
         String ip = request.getRemoteAddr();
         NetworkApp.setIpClient(ip);
-        NetworkApp.stopServer();
+        NetworkApp.stopUdpServer();
         return new ResponseEntity<>(HttpStatus.OK);
     }
     @PostMapping(value="/api/server/startgame")
