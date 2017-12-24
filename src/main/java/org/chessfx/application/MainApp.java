@@ -12,6 +12,7 @@ import javafx.stage.Stage;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 
 @SpringBootApplication(scanBasePackages = "org.chessfx")
 public class MainApp extends Application {
@@ -25,7 +26,11 @@ public class MainApp extends Application {
             stage.setTitle("Chess FX");
             BorderPane appPane = new BorderPane();
             getMainMenu(appPane);
-            stage.setScene(new Scene(appPane));
+            Scene scene = new Scene(appPane);
+            ClassPathResource resource = new ClassPathResource("/styles/Styles.css");
+            String path = resource.getPath();
+            scene.getStylesheets().add(path);
+            stage.setScene(scene);
             stage.show();
         } catch (Exception e) {
             e.printStackTrace();
@@ -56,15 +61,16 @@ public class MainApp extends Application {
             NetworkApp.getApp(springContext, appPane);
         });
         menu.setPrefSize(13*80, 9*80);
-        singleGame.setPrefSize(200, 20);
         singleGame.setLayoutX(6*80);
         singleGame.setLayoutY(4*80);
-        otherComputers.setPrefSize(200, 20);
+        singleGame.getStyleClass().add("ipad-grey");
         otherComputers.setLayoutX(6*80);
         otherComputers.setLayoutY(5*80);
+        otherComputers.getStyleClass().add("ipad-grey");
         menu.getChildren().add(singleGame);
         menu.getChildren().add(otherComputers);
         appPane.setCenter(menu);
+        appPane.getStyleClass().add("main-menu");
     }
     
     @Override
