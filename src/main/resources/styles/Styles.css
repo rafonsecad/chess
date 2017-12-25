@@ -30,3 +30,12 @@
     -fx-background-position: center center;
     -fx-effect: dropshadow(three-pass-box, black, 30, 0.5, 0, 0); 
 }
+
+.radio-button{
+    -fx-text-fill: lightgoldenrodyellow;
+}
+
+.label-client-table{
+    -fx-text-fill: lightgoldenrodyellow;
+    -fx-font-size: 12px;
+}

@@ -12,14 +12,18 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import org.chessfx.application.model.GameServer;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.ResponseEntity;
@@ -43,46 +47,94 @@ public class NetworkApp {
     private static UDPServer udpServer;
     private static UDPClient udpClient;
     private static BorderPane pane;
+    private static VBox clientPane;
     private static ConfigurableApplicationContext context;
 
     public static void getApp(ConfigurableApplicationContext springContext, BorderPane appPane) {
         pane = appPane;
         context = springContext;
         TilePane tile = new TilePane();
-        tile.setPadding(new Insets(5, 0, 5, 0));
+        tile.setPadding(new Insets(40));
         tile.setPrefColumns(2);
+        
+        VBox serverPane = getServerPane();
+        tile.getChildren().add(serverPane);
+
+        clientPane = getClientPane();
+        tile.getChildren().add(clientPane);
+        
+        appPane.setCenter(tile);
+    }
+    
+    private static VBox getServerPane(){
+        udpServer = new UDPServer();
+        VBox serverPane = new VBox();
+        serverPane.setPadding(new Insets(20, 20, 20, 20));
+        serverPane.setSpacing(20);
+        
+        ToggleGroup group = new ToggleGroup();
+        RadioButton whitePieces = new RadioButton("White");
+        RadioButton blackPieces = new RadioButton("Black");
+        whitePieces.getStyleClass().add("radio-button");
+        blackPieces.getStyleClass().add("radio-button");
+        whitePieces.setToggleGroup(group);
+        whitePieces.setSelected(true);
+        blackPieces.setToggleGroup(group);
+        serverPane.getChildren().add(whitePieces);
+        serverPane.getChildren().add(blackPieces);
+        
         Button createGame = new Button("Create New Game");
+        createGame.getStyleClass().add("ipad-grey");
         udpClient = new UDPClient();
         udpClient.start();
-        createGame.setOnMouseClicked(mouseEvent -> startUDPServer());
-        tile.getChildren().add(createGame);
+        createGame.setOnMouseClicked(mouseEvent -> startUDPServer(createGame));
+        serverPane.getChildren().add(createGame);
+        
+        return serverPane;
+    }
 
+    private static void startUDPServer(Button button) {
+        if (udpClient.isAlive()) {
+            udpClient.stop();
+            clientPane.setVisible(false);
+            clientPane.setManaged(false);
+            udpServer.start();
+            button.setText("Cancel Game");
+            return;
+        }
+        udpServer.stop();
+        clientPane.setVisible(true);
+        clientPane.setManaged(true);
+        udpClient.start();
+        button.setText("Create New Game");
+    }
+
+    private static VBox getClientPane(){
+        VBox clientPane = new VBox();
+        Label clientLabel = new Label("Pick One Server");
+        clientLabel.getStyleClass().add("label-client-table");
         TableView table = new TableView();
-        TableColumn server = new TableColumn("IP");
-        table.getColumns().addAll(server);
-        server.setCellValueFactory(new PropertyValueFactory<>("ip"));
-
+        table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        TableColumn serverIP = new TableColumn("IP");
+        TableColumn serverTeam = new TableColumn("Team");
+        table.getColumns().addAll(serverIP, serverTeam);
+        serverIP.setCellValueFactory(new PropertyValueFactory<>("ip"));
+        serverTeam.setCellValueFactory(new PropertyValueFactory<>("team"));
+        clientPane.getChildren().add(clientLabel);
+        clientPane.getChildren().add(table);
+        
         gameServers = FXCollections.observableArrayList();
         table.setItems(gameServers);
-        tile.getChildren().add(table);
-        appPane.setCenter(tile);
 
         table.setRowFactory(tv -> {
             TableRow<GameServer> row = new TableRow<>();
             row.setOnMouseClicked(event -> startClientGame(row, event));
             return row;
         });
+        return clientPane;
     }
-
-    private static void startUDPServer() {
-        udpServer = new UDPServer();
-        if (udpClient.isAlive()) {
-            udpClient.stop();
-            udpServer.start();
-        }
-    }
-
-    public static void startClientGame(TableRow<GameServer> row, MouseEvent event) {
+    
+    private static void startClientGame(TableRow<GameServer> row, MouseEvent event) {
         if (row.isEmpty() || event.getButton() != MouseButton.PRIMARY) {
             return;
         }
@@ -109,7 +161,7 @@ public class NetworkApp {
 
     public static void updateServerList() {
         gameServers.clear();
-        address.stream().forEach(addr -> gameServers.add(new GameServer(addr)));
+        address.stream().forEach(addr -> gameServers.add(new GameServer(addr, "white")));
     }
 
     public static String getIpServer() {

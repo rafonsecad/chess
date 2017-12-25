@@ -8,7 +8,7 @@
                 
             </goals>
             <properties>
-                <runfx.args>-jar -Dprism.order=sw "${project.build.directory}/${project.build.finalName}.jar"</runfx.args>
+                <runfx.args>-jar -Xlint:unchecked -Dprism.order=sw "${project.build.directory}/${project.build.finalName}.jar"</runfx.args>
             </properties>
         </action>
         <action>

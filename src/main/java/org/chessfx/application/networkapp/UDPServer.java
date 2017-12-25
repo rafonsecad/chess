@@ -24,6 +24,7 @@ public class UDPServer implements Runnable {
     
     private Thread thread;
     private boolean alive;
+    private DatagramSocket socket;
 
     @Override
     public void run() {
@@ -31,7 +32,6 @@ public class UDPServer implements Runnable {
             alive = true;
             while (alive) {
                 byte[] buffer = new byte[256];
-                DatagramSocket socket;
                 socket = new DatagramSocket(DATAGRAM_PORT);
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
@@ -54,6 +54,7 @@ public class UDPServer implements Runnable {
     }
     
     public void stop() {
+        socket.close();
         alive = false;
     }
 }

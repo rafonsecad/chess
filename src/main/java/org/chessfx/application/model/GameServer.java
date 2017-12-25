@@ -14,9 +14,11 @@ import javafx.beans.property.SimpleStringProperty;
 public class GameServer {
 
     private final SimpleStringProperty ip;
+    private final SimpleStringProperty team;
 
-    public GameServer(String ip) {
+    public GameServer(String ip, String team) {
         this.ip = new SimpleStringProperty(ip);
+        this.team = new SimpleStringProperty(team);
     }
 
     public String getIp() {
@@ -25,5 +27,13 @@ public class GameServer {
 
     public void setIp(String ip) {
         this.ip.set(ip);
+    }
+    
+    public String getTeam(){
+        return team.get();
+    }
+    
+    public void setTeam(String team){
+        this.team.set(team);
     }
 }
