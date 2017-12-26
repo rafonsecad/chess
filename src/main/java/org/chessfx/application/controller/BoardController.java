@@ -57,11 +57,15 @@ public class BoardController implements EventHandler<MouseEvent> {
 
     @Override
     public void handle(MouseEvent event) {
+        processEvent(event.getX(), event.getY());
+    }
+    
+    public void processEvent (double x, double y){
         if (chessBoard.hasPromotion()){
-            PromotePiece(event);
+            promotePiece(x, y);
             return;
         }
-        Optional<Square> square = getSquareByCoordinates(event.getX(), event.getY());
+        Optional<Square> square = getSquareByCoordinates(x, y);
         if (!square.isPresent()) {
             return;
         }
@@ -69,9 +73,9 @@ public class BoardController implements EventHandler<MouseEvent> {
         updateView(squareImages);
     }
     
-    private void PromotePiece (MouseEvent event){
+    private void promotePiece (double x, double y){
         Optional<Piece> piecePromoted; 
-        piecePromoted = promotionController.getPiecePromoted(event.getX(), event.getY());
+        piecePromoted = promotionController.getPiecePromoted(x, y);
         List<SquareImage> squareImages = promotionController.getPromotionSquares(piecePromoted);
         if (!squareImages.isEmpty()){
             updateView(squareImages);

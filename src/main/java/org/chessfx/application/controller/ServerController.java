@@ -7,10 +7,12 @@ package org.chessfx.application.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import org.chessfx.application.networkapp.NetworkApp;
+import org.chessfx.application.networkapp.ServerApp;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -29,6 +31,12 @@ public class ServerController {
     @PostMapping(value="/api/server/startgame")
     public ResponseEntity<Void> startGame(){
         NetworkApp.startGame();
+        return new ResponseEntity<>(HttpStatus.ACCEPTED);
+    }
+    @GetMapping(value="/api/server/requestmove")
+    public ResponseEntity<Void> requestMove(@RequestParam double x, @RequestParam double y){
+        System.out.println(x + " " + y);
+        ServerApp.requestMove(x, y);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
 }

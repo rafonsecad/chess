@@ -5,6 +5,7 @@
  */
 package org.chessfx.application.networkapp;
 
+import javafx.application.Platform;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
@@ -60,5 +61,9 @@ public class ServerApp {
         movements.setFill(Color.WHITE);
         notation.getChildren().add(movements);
         return notation;
+    }
+    
+    public static void requestMove(double x, double y){
+        Platform.runLater(()-> boardController.processEvent(x, y));
     }
 }

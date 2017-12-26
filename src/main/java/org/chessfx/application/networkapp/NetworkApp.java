@@ -156,7 +156,7 @@ public class NetworkApp {
         if (response.getStatusCode().toString().equals("200")) {
             ipServer = serverClicked.getIp();
             udpClient.stop();
-            ClientApp.getApp(context, pane);
+            ClientApp.getApp(context, pane, ipServer);
             url = HTTP + serverClicked.getIp() + HTTP_PORT + START_GAME_ENDPOINT;
             restTemplate.postForEntity(url, "", Void.class);
         }
