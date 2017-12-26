@@ -8,6 +8,7 @@ package org.chessfx.application.networkapp;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import org.chessfx.core.piece.Team;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -25,7 +26,12 @@ public class UDPServer implements Runnable {
     private Thread thread;
     private boolean alive;
     private DatagramSocket socket;
+    private Team team;
 
+    public UDPServer(){
+        this.team = Team.WHITE;
+    }
+    
     @Override
     public void run() {
         try {
@@ -36,7 +42,7 @@ public class UDPServer implements Runnable {
                 DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
                 socket.receive(packet);
                 InetAddress address = packet.getAddress();
-                String url = HTTP + address.getHostAddress() + HTTP_PORT + ENDPOINT;
+                String url = HTTP + address.getHostAddress() + HTTP_PORT + ENDPOINT + "?team=" + team.toString();
                 RestTemplate restTemplate = new RestTemplate();
                 ResponseEntity<String> response = restTemplate.getForEntity(url, String.class);
             }
@@ -56,5 +62,9 @@ public class UDPServer implements Runnable {
     public void stop() {
         socket.close();
         alive = false;
+    }
+    
+    public void setTeam(Team team){
+        this.team = team;
     }
 }

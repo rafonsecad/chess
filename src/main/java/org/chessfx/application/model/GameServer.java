@@ -6,6 +6,7 @@
 package org.chessfx.application.model;
 
 import javafx.beans.property.SimpleStringProperty;
+import org.chessfx.core.piece.Team;
 
 /**
  *
@@ -16,9 +17,9 @@ public class GameServer {
     private final SimpleStringProperty ip;
     private final SimpleStringProperty team;
 
-    public GameServer(String ip, String team) {
+    public GameServer(String ip, Team team) {
         this.ip = new SimpleStringProperty(ip);
-        this.team = new SimpleStringProperty(team);
+        this.team = new SimpleStringProperty(team.toString());
     }
 
     public String getIp() {

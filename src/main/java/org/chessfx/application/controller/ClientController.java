@@ -7,13 +7,16 @@ package org.chessfx.application.controller;
 
 import javax.servlet.http.HttpServletRequest;
 import org.chessfx.application.networkapp.ClientApp;
-import org.chessfx.application.networkapp.NetworkApp;
 import org.chessfx.application.model.ChessBoard;
+import org.chessfx.application.model.GameServer;
+import org.chessfx.application.networkapp.NetworkApp;
+import org.chessfx.core.piece.Team;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -23,11 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ClientController {
     @GetMapping("/api/client/server")
-    public ResponseEntity<Void> getServer(HttpServletRequest request){
-        if (!NetworkApp.address.contains(request.getRemoteAddr())){
-            NetworkApp.address.add(request.getRemoteAddr());
-            NetworkApp.updateServerList();
-        }
+    public ResponseEntity<Void> getServer(HttpServletRequest request,
+            @RequestParam Team team){
+        GameServer server = new GameServer(request.getRemoteAddr(), team);
+        NetworkApp.updateServerList(server);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
     

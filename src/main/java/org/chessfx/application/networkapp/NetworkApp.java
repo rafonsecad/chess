@@ -5,9 +5,10 @@
  */
 package org.chessfx.application.networkapp;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -25,6 +26,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.layout.VBox;
 import org.chessfx.application.model.GameServer;
+import org.chessfx.core.piece.Team;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -40,7 +42,6 @@ public class NetworkApp {
     private final static String REQUEST_GAME_ENDPOINT = "/api/server/requestgame";
     private final static String START_GAME_ENDPOINT = "/api/server/startgame";
 
-    public static List<String> address = new ArrayList<>();
     private static String ipServer;
     private static String ipClient;
     private static ObservableList<GameServer> gameServers;
@@ -82,6 +83,16 @@ public class NetworkApp {
         blackPieces.setToggleGroup(group);
         serverPane.getChildren().add(whitePieces);
         serverPane.getChildren().add(blackPieces);
+        whitePieces.selectedProperty().addListener(new ChangeListener<Boolean>() {
+            @Override
+            public void changed(ObservableValue<? extends Boolean> obs, Boolean wasPreviouslySelected, Boolean isNowSelected) {
+                if (isNowSelected) { 
+                    udpServer.setTeam(Team.WHITE);
+                    return;
+                }
+                udpServer.setTeam(Team.BLACK);
+            }
+        });
         
         Button createGame = new Button("Create New Game");
         createGame.getStyleClass().add("ipad-grey");
@@ -159,9 +170,11 @@ public class NetworkApp {
         udpServer.stop();
     }
 
-    public static void updateServerList() {
-        gameServers.clear();
-        address.stream().forEach(addr -> gameServers.add(new GameServer(addr, "white")));
+    public static void updateServerList(GameServer server) {
+        Optional<GameServer> serverFound = gameServers.stream().filter(s -> s.getIp().equals(server.getIp())).findAny();
+        if(!serverFound.isPresent()){
+            gameServers.add(server);
+        }
     }
 
     public static String getIpServer() {
