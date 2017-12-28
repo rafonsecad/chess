@@ -163,7 +163,7 @@ public class NetworkApp {
     }
 
     public static void startGame() {
-        Platform.runLater(() -> ServerApp.getApp(context, pane, ipClient));
+        Platform.runLater(() -> ServerApp.getApp(context, pane, ipClient, udpServer.getTeam()));
     }
 
     public static void stopUdpServer() {

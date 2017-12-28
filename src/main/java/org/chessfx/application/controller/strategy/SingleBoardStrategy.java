@@ -19,4 +19,11 @@ public class SingleBoardStrategy implements BoardControllerStrategy{
         drawer.draw(chessBoard);
     }
     
+    @Override
+    public boolean isTurnValid(boolean local){
+        return local;
+    }
+    
+    @Override
+    public void updateTeamTurn(){}
 }

@@ -13,5 +13,7 @@ import org.chessfx.application.model.ChessBoard;
  * @author rafael
  */
 public interface BoardControllerStrategy {
-    public void updateView(ChessBoardDrawer drawer, ChessBoard chessBoard);
+    void updateView(ChessBoardDrawer drawer, ChessBoard chessBoard);
+    boolean isTurnValid(boolean local);
+    void updateTeamTurn();
 }

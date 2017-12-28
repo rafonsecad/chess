@@ -17,6 +17,7 @@ import javafx.scene.text.Text;
 import org.chessfx.application.ChessBoardDrawer;
 import org.chessfx.application.controller.BoardController;
 import org.chessfx.application.controller.strategy.ServerBoardStrategy;
+import org.chessfx.core.piece.Team;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
@@ -27,10 +28,10 @@ public class ServerApp {
     private static ChessBoardDrawer drawer;
     private static BoardController boardController;
     
-    public static void getApp(ConfigurableApplicationContext springContext, BorderPane appPane, String ip){
+    public static void getApp(ConfigurableApplicationContext springContext, BorderPane appPane, String ip, Team team){
         drawer = (ChessBoardDrawer) springContext.getBean("ChessBoardDrawer");
         boardController = (BoardController) springContext.getBean("BoardController");
-        boardController.setStrategy(new ServerBoardStrategy(ip));
+        boardController.setStrategy(new ServerBoardStrategy(ip, team));
         Pane chessBoard = new Pane();
         VBox notation = buildNotationPane();
         HBox upperMenu = buildUpperMenu();
@@ -64,6 +65,6 @@ public class ServerApp {
     }
     
     public static void requestMove(double x, double y){
-        Platform.runLater(()-> boardController.processEvent(x, y));
+        Platform.runLater(()-> boardController.processEvent(x, y, false));
     }
 }

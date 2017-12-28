@@ -7,6 +7,7 @@ package org.chessfx.application.controller.strategy;
 
 import org.chessfx.application.ChessBoardDrawer;
 import org.chessfx.application.model.ChessBoard;
+import org.chessfx.core.piece.Team;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -18,9 +19,13 @@ import org.springframework.web.client.RestTemplate;
 public class ServerBoardStrategy implements BoardControllerStrategy{
 
     final private String ipClient;
+    final private Team team;
+    private Team lastTeamTurn;
     
-    public ServerBoardStrategy(String ipClient){
+    public ServerBoardStrategy(String ipClient, Team team){
         this.ipClient = ipClient;
+        this.team = team;
+        lastTeamTurn = team == Team.WHITE ? Team.BLACK : Team.WHITE;
     }
     
     @Override
@@ -33,4 +38,23 @@ public class ServerBoardStrategy implements BoardControllerStrategy{
         }
     }
     
+    @Override
+    public boolean isTurnValid(boolean local){
+        if (local && lastTeamTurn != team){
+            return true;
+        }
+        if (!local && lastTeamTurn == team){
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
+    public void updateTeamTurn(){
+        if (lastTeamTurn == Team.WHITE){
+            lastTeamTurn = Team.BLACK;
+            return;
+        }
+        lastTeamTurn = Team.WHITE;
+    }
 }

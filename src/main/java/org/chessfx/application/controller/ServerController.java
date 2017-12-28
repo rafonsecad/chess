@@ -35,7 +35,6 @@ public class ServerController {
     }
     @GetMapping(value="/api/server/requestmove")
     public ResponseEntity<Void> requestMove(@RequestParam double x, @RequestParam double y){
-        System.out.println(x + " " + y);
         ServerApp.requestMove(x, y);
         return new ResponseEntity<>(HttpStatus.ACCEPTED);
     }
