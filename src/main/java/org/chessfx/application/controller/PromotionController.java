@@ -33,11 +33,8 @@ public class PromotionController {
         this.chessBoard = chessBoard;
     }
  
-    public List<SquareImage> getPromotionSquares (Optional<Piece> piece){
-        if (!piece.isPresent()){
-            return new ArrayList<>();
-        }
-        Piece fullPiece = new Piece (chessBoard.getTeamPromoted(), piece.get().getType());
+    public List<SquareImage> getPromotionSquares (Piece piece){
+        Piece fullPiece = new Piece (chessBoard.getTeamPromoted(), piece.getType());
         boardService.promotedPiece(chessBoard.getSquarePromoted(), fullPiece);
         chessBoard.setPromotion(false);
         List<Square> squares = boardService.getBoard().getSquares();
@@ -55,29 +52,29 @@ public class PromotionController {
             xMins[index] = 3.7*WIDTH + WIDTH*index + index*0.2*WIDTH;
             xMaxs[index] = xMins[index] + WIDTH;
             if (xMins[index] <= x && xMaxs[index] >= x){
-                return selectPiecePromoted(index);
+                return Optional.of(selectPiecePromoted(index));
             }
         }
         return Optional.empty();
     }
     
-    private Optional<Piece> selectPiecePromoted(int index){
+    private Piece selectPiecePromoted(int index){
         Piece piece = new Piece(Team.WHITE, TypePiece.QUEEN);
         switch(index){
             case 0:
                 piece = new Piece(Team.WHITE, TypePiece.QUEEN);
-                return Optional.of(piece);
+                break;
             case 1:
                 piece = new Piece(Team.WHITE, TypePiece.ROOK);
-                return Optional.of(piece);
+                break;
             case 2:
                 piece = new Piece(Team.WHITE, TypePiece.BISHOP);
-                return Optional.of(piece);
+                break;
             case 3:
                 piece = new Piece(Team.WHITE, TypePiece.KNIGHT);
-                return Optional.of(piece);
+                break;
             default:
-                return Optional.of(piece);
         }
+        return piece;
     }
 }

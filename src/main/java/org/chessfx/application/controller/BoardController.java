@@ -56,9 +56,10 @@ public class BoardController implements EventHandler<MouseEvent> {
             return;
         }
         Optional<Square> square = getSquareByCoordinates(event.getX(), event.getY());
-        if (!square.isPresent()) {
-            return;
-        }
+        square.ifPresent(this::updateViewFromSquare);
+    }
+    
+    private void updateViewFromSquare (Square square){
         List<SquareImage> squareImages = handleChessBoardRequests(square);
         updateView(squareImages);
     }
@@ -66,12 +67,14 @@ public class BoardController implements EventHandler<MouseEvent> {
     private void PromotePiece (MouseEvent event){
         Optional<Piece> piecePromoted; 
         piecePromoted = promotionController.getPiecePromoted(event.getX(), event.getY());
-        List<SquareImage> squareImages = promotionController.getPromotionSquares(piecePromoted);
-        if (!squareImages.isEmpty()){
-            updateView(squareImages);
-        }
+        piecePromoted.ifPresent(this::updateViewFromPromotionSquares);
     }
 
+    private void updateViewFromPromotionSquares(Piece piecePromoted){
+        List<SquareImage> squareImages = promotionController.getPromotionSquares(piecePromoted);
+        updateView(squareImages);
+    }
+    
     private void updateView(List<SquareImage> squareImages){
         chessBoard.setDeadPieces(boardService.getDeadPieces());
         chessBoard.setSquareImages(getSquareImagesWithCheck(squareImages));
@@ -79,25 +82,26 @@ public class BoardController implements EventHandler<MouseEvent> {
         drawer.draw(chessBoard);
     }
     
-    private List<SquareImage> handleChessBoardRequests(Optional<Square> square){
-        List<SquareImage> squareImagesBoard = chessBoard.getSquareImages();
-        Square squareInBoard = getSquareInBoard(square.get());
-        Optional<SquareImage> squareSelected = squareImagesBoard.stream().filter(sI -> sI.isSelected() == true).findAny();
+    private List<SquareImage> handleChessBoardRequests(Square square){
+        List<SquareImage> squareImages = chessBoard.getSquareImages();
+        Square squareInBoard = getSquareInBoard(square);
+        Optional<SquareImage> squareSelected = squareImages.stream().filter(sI -> sI.isSelected() == true).findAny();
         Optional<SquareImage> squareToMove = getSquareToMove(squareInBoard);
-        List<SquareImage> squaresImages = squareImagesBoard.stream().map(s -> s).collect(Collectors.toList());
         
-        if (squareSelected.isPresent() && squareSelected.get().equals(squareInBoard)) {
-            squaresImages = getBoardUnmarked();
+        boolean willUnmarkedSquare = squareSelected.filter(s -> s.equals(squareInBoard)).isPresent();
+        
+        if (willUnmarkedSquare) {
+            squareImages = getBoardUnmarked();
         } else if (squareToMove.isPresent()) {
-            squaresImages = MovePiece(squareSelected.get(), squareToMove.get());
+            squareImages = movePiece(squareSelected.get(), squareToMove.get());
         } else if (squareInBoard.isOcuppied()) {
-            List<SquareImage> squareImages = getSquarePieceSelected(squareInBoard);
-            squaresImages = setAllowedMovementsToSquares(squareInBoard, squareImages);
+            List<SquareImage> squareImagesPieceSelected = getSquarePieceSelected(squareInBoard);
+            squareImages = setAllowedMovementsToSquares(squareInBoard, squareImagesPieceSelected);
         }
-        return squaresImages;
+        return squareImages;
     }
     
-    private List<SquareImage> MovePiece(Square squareSelected, Square squareToMove) {
+    private List<SquareImage> movePiece(Square squareSelected, Square squareToMove) {
         boardService.movePiece(squareSelected, squareToMove);
         List<Square> squares = boardService.getBoard().getSquares();
         List<SquareImage> squaresImages = toListSquareImage(squares);
